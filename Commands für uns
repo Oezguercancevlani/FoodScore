@@ -1,0 +1,7 @@
+
+Für das Öffnen der Frontend Seite
+
+cd Frontend/lebensmittel-score-frontend
+npm install
+npm run dev
+dann auf Link klicken das im Terminal angezeigt wird
