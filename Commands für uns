@@ -5,3 +5,10 @@ cd Frontend/lebensmittel-score-frontend
 npm install
 npm run dev
 dann auf Link klicken das im Terminal angezeigt wird
+
+
+
+
+bitte für frontend folgendes noch installieren mit diesem command:
+cd lebensmittel-score-frontend
+npm install react-router-dom
