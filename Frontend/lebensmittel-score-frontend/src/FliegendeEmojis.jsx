@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 export default function FliegendeEmojis() {
 
-//Test
 
     const emojis = ["🍪","🍔","🥘","🥜","🍏","🍎","🍌","🍫","🥦","🥪","🌮","🍿","🍉","🍟","🫛","🍙","🍣","🌯","🍛","🥒","🍅","🍬","🍭","🫐","🍰"]
 
@@ -10,7 +9,7 @@ const emojiElements = useMemo(() => {
       const emoji = emojis[Math.floor(Math.random() * emojis.length)];
       const top = Math.random() * 100;
       const delay = Math.random() * 10;
-      const duration = 5 + Math.random() * 5;
+      const duration = 3 + Math.random() * 5;
 
       if (top > 40 && top < 60) return null;
 
