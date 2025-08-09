@@ -65,4 +65,12 @@ public class ProduktService {
     public Produkt findeProdukt(Long id) {
         return produktRepository.findById(id).orElseThrow();
     }
+
+    // Neue Methode in ProduktService.java
+    public Page<Produkt> getAlleGefilterteWithZutaten(String kategorie, String marke,
+                                                      Double minPreis, Double maxPreis,
+                                                      String zutat, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return produktRepository.findWithAllFiltersAndZutaten(kategorie, marke, minPreis, maxPreis, zutat, pageable);
+    }
 }

@@ -1,10 +1,10 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAlleProdukte, getProduktSeite, getAlleKategorien, getAlleMarken, getGefilterteProdukte, getPreisRange } from './Clients/ProduktClient';
 
-// Simple Autocomplete (gleich wie vorher)
+// Simple Autocomplete (unverändert)
 function SimpleAutocomplete({ value, onChange, options, placeholder, label }) {
-    // ... (gleicher Code wie vorher)
     const [inputValue, setInputValue] = useState('');
     const [filteredOptions, setFilteredOptions] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -122,93 +122,236 @@ function SimpleAutocomplete({ value, onChange, options, placeholder, label }) {
     );
 }
 
-// VERBESSERTE PriceRangeSlider Komponente
+// ERWEITERTE Zutaten-Autocomplete mit häufigen Zutaten
+function ZutatenAutocomplete({ value, onChange, label }) {
+    // Häufige Zutaten aus Ihren Daten
+    const haeufieZutaten = [
+        'Milch', 'MILCH', 'MAGERMILCHPULVER', 'MILCHEIWEISS',
+        'Weizen', 'WEIZEN', 'WEIZENMEHL', 'HARTWEIZENGRIESS',
+        'Ei', 'EI', 'EIER', 'EIGELBPULVER',
+        'Soja', 'SOJA', 'SOJAMEHL',
+        'Nüsse', 'NÜSSE', 'SCHALENFRÜCHTE', 'ERDNÜSSE',
+        'Zucker', 'Salz', 'SPEISESALZ',
+        'Palmöl', 'Sonnenblumenöl', 'Rapsöl',
+        'Konservierungsstoff', 'Antioxidationsmittel',
+        'Säuerungsmittel', 'Emulgator',
+        'Wasser', 'Alkohol', 'Ethylalkohol'
+    ];
+
+    const [inputValue, setInputValue] = useState('');
+    const [filteredOptions, setFilteredOptions] = useState([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        setInputValue(value);
+    }, [value]);
+
+    useEffect(() => {
+        if (inputValue.trim().length >= 2) {
+            const filtered = haeufieZutaten.filter(zutat =>
+                zutat.toLowerCase().includes(inputValue.toLowerCase())
+            ).slice(0, 6);
+            setFilteredOptions(filtered);
+            setShowDropdown(filtered.length > 0);
+        } else {
+            setFilteredOptions([]);
+            setShowDropdown(false);
+        }
+    }, [inputValue]);
+
+    const handleInputChange = (e) => {
+        setInputValue(e.target.value);
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            onChange(inputValue.trim());
+            setShowDropdown(false);
+            e.target.blur();
+        }
+    };
+
+    const handleBlur = () => {
+        setTimeout(() => {
+            setShowDropdown(false);
+            onChange(inputValue.trim());
+        }, 150);
+    };
+
+    const handleOptionClick = (option) => {
+        setInputValue(option);
+        onChange(option);
+        setShowDropdown(false);
+        inputRef.current?.blur();
+    };
+
+    const clearInput = () => {
+        setInputValue('');
+        onChange('');
+        setShowDropdown(false);
+        inputRef.current?.focus();
+    };
+
+    return (
+        <div className="relative">
+            <label className="block text-sm font-medium text-slate-700 mb-2">
+                {label}
+            </label>
+
+            <div className="relative">
+                <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    onKeyPress={handleKeyPress}
+                    onBlur={handleBlur}
+                    onFocus={() => {
+                        if (filteredOptions.length > 0) {
+                            setShowDropdown(true);
+                        }
+                    }}
+                    placeholder="z.B. Milch, Weizen, Nüsse..."
+                    className="w-full px-4 py-3 pr-10 border border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm
+                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white
+                   transition-all duration-200 text-sm"
+                />
+
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    {inputValue ? (
+                        <button
+                            onClick={clearInput}
+                            className="p-1 hover:bg-slate-100 rounded-full transition-colors"
+                            type="button"
+                        >
+                            <svg className="w-4 h-4 text-slate-400 hover:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    ) : (
+                        <svg className="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    )}
+                </div>
+            </div>
+
+            {showDropdown && filteredOptions.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg
+                       backdrop-blur-xl max-h-60 overflow-y-auto">
+                    {filteredOptions.map((option) => (
+                        <button
+                            key={option}
+                            type="button"
+                            onClick={() => handleOptionClick(option)}
+                            className="w-full px-4 py-3 text-left hover:bg-blue-50 transition-colors text-slate-900
+                       first:rounded-t-xl last:rounded-b-xl text-sm"
+                        >
+                            {option}
+                        </button>
+                    ))}
+
+                    <div className="px-4 py-2 text-xs text-slate-500 bg-slate-50 border-t border-slate-100 rounded-b-xl">
+                        Enter drücken für "{inputValue}"
+                    </div>
+                </div>
+            )}
+
+            {inputValue && !showDropdown && (
+                <div className="mt-1 text-xs text-slate-500">
+                    Enter drücken oder Feld verlassen zum Suchen
+                </div>
+            )}
+        </div>
+    );
+}
+
+// PriceRangeSlider (unverändert)
 function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange }) {
     const [minVal, setMinVal] = useState(currentMin);
     const [maxVal, setMaxVal] = useState(currentMax);
-    const [isDragging, setIsDragging] = useState(false);
-    const minRangeRef = useRef(null);
-    const maxRangeRef = useRef(null);
+    const [minInput, setMinInput] = useState('');
+    const [maxInput, setMaxInput] = useState('');
 
     useEffect(() => {
         setMinVal(currentMin);
         setMaxVal(currentMax);
+        setMinInput(currentMin.toFixed(2));
+        setMaxInput(currentMax.toFixed(2));
     }, [currentMin, currentMax]);
-
-    // Debounced onChange für bessere Performance
-    const debouncedOnChange = useRef();
-    useEffect(() => {
-        clearTimeout(debouncedOnChange.current);
-        debouncedOnChange.current = setTimeout(() => {
-            if (!isDragging) {
-                onChange(minVal, maxVal);
-            }
-        }, 300);
-    }, [minVal, maxVal, isDragging]);
-
-    const handleMinChange = (e) => {
-        const value = Math.min(Number(e.target.value), maxVal - 0.01);
-        setMinVal(value);
-        if (isDragging) {
-            onChange(value, maxVal);
-        }
-    };
-
-    const handleMaxChange = (e) => {
-        const value = Math.max(Number(e.target.value), minVal + 0.01);
-        setMaxVal(value);
-        if (isDragging) {
-            onChange(minVal, value);
-        }
-    };
 
     const handleMinInputChange = (e) => {
         const value = e.target.value;
-        if (value === '') {
-            setMinVal(minValue);
-            return;
-        }
-
-        const numValue = Number(value);
-        if (!isNaN(numValue)) {
-            const clampedValue = Math.max(minValue, Math.min(numValue, maxVal - 0.01));
-            setMinVal(clampedValue);
+        if (/^[\d.,]*$/.test(value)) {
+            setMinInput(value);
         }
     };
 
     const handleMaxInputChange = (e) => {
         const value = e.target.value;
-        if (value === '') {
-            setMaxVal(maxValue);
-            return;
-        }
-
-        const numValue = Number(value);
-        if (!isNaN(numValue)) {
-            const clampedValue = Math.min(maxValue, Math.max(numValue, minVal + 0.01));
-            setMaxVal(clampedValue);
+        if (/^[\d.,]*$/.test(value)) {
+            setMaxInput(value);
         }
     };
 
-    const handleInputBlur = () => {
-        onChange(minVal, maxVal);
+    const handleMinInputBlur = () => {
+        let value = parseFloat(minInput.replace(',', '.'));
+
+        if (isNaN(value) || value < minValue) {
+            value = minValue;
+        } else if (value >= maxVal) {
+            value = Math.max(minValue, maxVal - 0.01);
+        }
+
+        value = Math.max(minValue, Math.min(maxValue, value));
+        setMinVal(value);
+        setMinInput(value.toFixed(2));
+        onChange(value, maxVal);
     };
 
-    const handleKeyPress = (e) => {
+    const handleMaxInputBlur = () => {
+        let value = parseFloat(maxInput.replace(',', '.'));
+
+        if (isNaN(value) || value > maxValue) {
+            value = maxValue;
+        } else if (value <= minVal) {
+            value = Math.min(maxValue, minVal + 0.01);
+        }
+
+        value = Math.max(minValue, Math.min(maxValue, value));
+        setMaxVal(value);
+        setMaxInput(value.toFixed(2));
+        onChange(minVal, value);
+    };
+
+    const handleKeyPress = (e, isMin) => {
         if (e.key === 'Enter') {
-            onChange(minVal, maxVal);
+            if (isMin) {
+                handleMinInputBlur();
+            } else {
+                handleMaxInputBlur();
+            }
             e.target.blur();
         }
     };
 
-    const handleMouseDown = () => {
-        setIsDragging(true);
+    const handleMinSliderChange = (e) => {
+        const value = Math.min(Number(e.target.value), maxVal - 0.01);
+        setMinVal(value);
+        setMinInput(value.toFixed(2));
+        onChange(value, maxVal);
     };
 
-    const handleMouseUp = () => {
-        setIsDragging(false);
-        onChange(minVal, maxVal);
+    const handleMaxSliderChange = (e) => {
+        const value = Math.max(Number(e.target.value), minVal + 0.01);
+        setMaxVal(value);
+        setMaxInput(value.toFixed(2));
+        onChange(minVal, value);
     };
+
+    const leftPercent = ((minVal - minValue) / (maxValue - minValue)) * 100;
+    const rightPercent = ((maxVal - minValue) / (maxValue - minValue)) * 100;
 
     return (
         <div className="space-y-4">
@@ -216,119 +359,94 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
                 💰 Preisbereich
             </label>
 
-            {/* Input Fields */}
             <div className="grid grid-cols-2 gap-3">
                 <div>
                     <label className="block text-xs text-slate-500 mb-1">Von</label>
                     <div className="relative">
                         <input
-                            type="number"
-                            step="0.01"
-                            min={minValue}
-                            max={maxValue}
-                            value={minVal.toFixed(2)}
+                            type="text"
+                            value={minInput}
                             onChange={handleMinInputChange}
-                            onBlur={handleInputBlur}
-                            onKeyPress={handleKeyPress}
-                            className="w-full px-3 py-2 pr-6 text-sm border border-slate-200 rounded-lg bg-white/80
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            onBlur={handleMinInputBlur}
+                            onKeyPress={(e) => handleKeyPress(e, true)}
+                            placeholder="0,00"
+                            className="w-full px-3 py-2 pr-8 text-sm border border-slate-200 rounded-lg bg-white/80
+                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">€</span>
+                        <span className="absolute right-3 top-2 text-xs text-slate-400">€</span>
                     </div>
                 </div>
                 <div>
                     <label className="block text-xs text-slate-500 mb-1">Bis</label>
                     <div className="relative">
                         <input
-                            type="number"
-                            step="0.01"
-                            min={minValue}
-                            max={maxValue}
-                            value={maxVal.toFixed(2)}
+                            type="text"
+                            value={maxInput}
                             onChange={handleMaxInputChange}
-                            onBlur={handleInputBlur}
-                            onKeyPress={handleKeyPress}
-                            className="w-full px-3 py-2 pr-6 text-sm border border-slate-200 rounded-lg bg-white/80
-                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            onBlur={handleMaxInputBlur}
+                            onKeyPress={(e) => handleKeyPress(e, false)}
+                            placeholder="1000,00"
+                            className="w-full px-3 py-2 pr-8 text-sm border border-slate-200 rounded-lg bg-white/80
+                               focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         />
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-400">€</span>
+                        <span className="absolute right-3 top-2 text-xs text-slate-400">€</span>
                     </div>
                 </div>
             </div>
 
-            {/* Range Slider - Verbessert */}
-            <div className="relative mt-6">
-                <div className="relative h-2 bg-slate-200 rounded-lg">
-                    {/* Active Range */}
+            <div className="space-y-4 mt-6">
+                <div className="relative h-2 bg-slate-200 rounded-full">
                     <div
-                        className="absolute h-full bg-blue-500 rounded-lg transition-all duration-100"
+                        className="absolute h-full bg-blue-500 rounded-full transition-all duration-150"
                         style={{
-                            left: `${((minVal - minValue) / (maxValue - minValue)) * 100}%`,
-                            width: `${((maxVal - minVal) / (maxValue - minValue)) * 100}%`
+                            left: `${leftPercent}%`,
+                            width: `${rightPercent - leftPercent}%`
                         }}
                     />
                 </div>
 
-                {/* Slider Container */}
-                <div className="relative -mt-2">
-                    {/* Min Range Input */}
+                <div>
+                    <label className="block text-xs text-slate-500 mb-1">
+                        Minimum: {minVal.toFixed(2)}€
+                    </label>
                     <input
-                        ref={minRangeRef}
                         type="range"
                         min={minValue}
                         max={maxValue}
                         step="0.01"
                         value={minVal}
-                        onChange={handleMinChange}
-                        onMouseDown={handleMouseDown}
-                        onMouseUp={handleMouseUp}
-                        onTouchStart={handleMouseDown}
-                        onTouchEnd={handleMouseUp}
-                        className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-20
-                     [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5
-                     [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer
-                     [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:hover:bg-blue-600
-                     [&::-webkit-slider-thumb]:transition-colors [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white
-                     [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:bg-blue-500
-                     [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none
-                     [&::-moz-range-track]:bg-transparent [&::-moz-range-track]:h-0"
-                        style={{ zIndex: minVal > maxVal - (maxValue - minValue) * 0.05 ? 25 : 20 }}
+                        onChange={handleMinSliderChange}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer
+                                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5
+                                   [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:rounded-full
+                                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg
+                                   [&::-webkit-slider-thumb]:hover:bg-blue-600 [&::-webkit-slider-thumb]:transition-colors"
                     />
+                </div>
 
-                    {/* Max Range Input */}
+                <div>
+                    <label className="block text-xs text-slate-500 mb-1">
+                        Maximum: {maxVal.toFixed(2)}€
+                    </label>
                     <input
-                        ref={maxRangeRef}
                         type="range"
                         min={minValue}
                         max={maxValue}
                         step="0.01"
                         value={maxVal}
-                        onChange={handleMaxChange}
-                        onMouseDown={handleMouseDown}
-                        onMouseUp={handleMouseUp}
-                        onTouchStart={handleMouseDown}
-                        onTouchEnd={handleMouseUp}
-                        className="absolute w-full h-2 bg-transparent appearance-none cursor-pointer z-21
-                     [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5
-                     [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer
-                     [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:hover:bg-blue-600
-                     [&::-webkit-slider-thumb]:transition-colors [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white
-                     [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:bg-blue-500
-                     [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-none
-                     [&::-moz-range-track]:bg-transparent [&::-moz-range-track]:h-0"
+                        onChange={handleMaxSliderChange}
+                        className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer
+                                   [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5
+                                   [&::-webkit-slider-thumb]:bg-green-500 [&::-webkit-slider-thumb]:rounded-full
+                                   [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg
+                                   [&::-webkit-slider-thumb]:hover:bg-green-600 [&::-webkit-slider-thumb]:transition-colors"
                     />
                 </div>
             </div>
 
-            {/* Display Values */}
-            <div className="flex justify-between text-sm text-slate-600 pt-2">
-                <span className="font-medium">{minVal.toFixed(2)}€</span>
-                <span className="font-medium">{maxVal.toFixed(2)}€</span>
-            </div>
-
-            {/* Optional: Range Info */}
-            <div className="text-xs text-slate-400 text-center">
-                Spanne: {(maxVal - minVal).toFixed(2)}€
+            <div className="flex justify-between text-sm text-slate-600 pt-2 bg-slate-50 rounded-lg px-3 py-2">
+                <span className="font-medium text-blue-600">Min: {minVal.toFixed(2)}€</span>
+                <span className="font-medium text-green-600">Max: {maxVal.toFixed(2)}€</span>
             </div>
         </div>
     );
@@ -349,6 +467,7 @@ export default function LebensmittelListe() {
     const [marken, setMarken] = useState([]);
     const [selectedKategorie, setSelectedKategorie] = useState('');
     const [selectedMarke, setSelectedMarke] = useState('');
+    const [selectedZutat, setSelectedZutat] = useState('');
 
     const [preisBounds, setPreisBounds] = useState({ min: 0, max: 100 });
     const [selectedMinPreis, setSelectedMinPreis] = useState(0);
@@ -356,7 +475,7 @@ export default function LebensmittelListe() {
 
     const [filtersVisible, setFiltersVisible] = useState(false);
 
-    // Filter-Daten laden (einschließlich Preis-Range)
+    // Filter-Daten laden
     useEffect(() => {
         const loadFilters = async () => {
             try {
@@ -377,25 +496,29 @@ export default function LebensmittelListe() {
         loadFilters();
     }, []);
 
-    const fetchProdukte = async (page = 0, kategorie = selectedKategorie, marke = selectedMarke, minPreis = selectedMinPreis, maxPreis = selectedMaxPreis) => {
+    const fetchProdukte = async (page = 0, kategorie = selectedKategorie, marke = selectedMarke, minPreis = selectedMinPreis, maxPreis = selectedMaxPreis, zutat = selectedZutat) => {
         setLoading(true);
+        console.log('Fetch Produkte with:', { kategorie, marke, minPreis, maxPreis, zutat, page }); // DEBUG
+
         try {
             let data;
 
-            // Prüfen ob Standard-Range oder gefiltert
             const isMinFiltered = minPreis > preisBounds.min;
             const isMaxFiltered = maxPreis < preisBounds.max;
 
-            if (kategorie || marke || isMinFiltered || isMaxFiltered) {
+            if (kategorie || marke || isMinFiltered || isMaxFiltered || zutat) {
+                console.log('Using filtered search'); // DEBUG
                 data = await getGefilterteProdukte(
                     kategorie || null,
                     marke || null,
                     isMinFiltered ? minPreis : null,
                     isMaxFiltered ? maxPreis : null,
+                    zutat || null,
                     page,
                     pageSize
                 );
             } else {
+                console.log('Using unfiltered search'); // DEBUG
                 data = await getProduktSeite(page, pageSize);
             }
 
@@ -411,10 +534,10 @@ export default function LebensmittelListe() {
     };
 
     useEffect(() => {
-        if (preisBounds.min !== 0 || preisBounds.max !== 100) { // Warten bis Preis-Bounds geladen sind
+        if (preisBounds.min !== 0 || preisBounds.max !== 100) {
             fetchProdukte(0);
         }
-    }, [selectedKategorie, selectedMarke, selectedMinPreis, selectedMaxPreis, preisBounds]);
+    }, [selectedKategorie, selectedMarke, selectedMinPreis, selectedMaxPreis, selectedZutat, preisBounds]);
 
     const goToPage = (page) => {
         fetchProdukte(page);
@@ -427,6 +550,7 @@ export default function LebensmittelListe() {
     const clearFilters = () => {
         setSelectedKategorie('');
         setSelectedMarke('');
+        setSelectedZutat('');
         setSelectedMinPreis(preisBounds.min);
         setSelectedMaxPreis(preisBounds.max);
     };
@@ -436,7 +560,7 @@ export default function LebensmittelListe() {
         setSelectedMaxPreis(maxPreis);
     };
 
-    const hasActiveFilters = selectedKategorie || selectedMarke ||
+    const hasActiveFilters = selectedKategorie || selectedMarke || selectedZutat ||
         selectedMinPreis > preisBounds.min ||
         selectedMaxPreis < preisBounds.max;
 
@@ -483,16 +607,16 @@ export default function LebensmittelListe() {
                                     <span className="bg-white/20 text-xs px-2 py-0.5 rounded-full">
                     {(selectedKategorie ? 1 : 0) +
                         (selectedMarke ? 1 : 0) +
+                        (selectedZutat ? 1 : 0) +
                         (selectedMinPreis > preisBounds.min || selectedMaxPreis < preisBounds.max ? 1 : 0)}
                   </span>
                                 )}
                             </button>
                         </div>
 
-                        {/* Filter-Bereich MIT PREIS */}
                         {filtersVisible && (
                             <div className="bg-white/60 backdrop-blur-sm rounded-xl border border-slate-200/50 p-6">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
 
                                     <SimpleAutocomplete
                                         value={selectedKategorie}
@@ -510,7 +634,13 @@ export default function LebensmittelListe() {
                                         label="🏭 Marke"
                                     />
 
-                                    {/* VERBESSERTE Preis-Range Filter */}
+                                    {/* ERWEITERTE Zutaten-Suche mit Autocomplete */}
+                                    <ZutatenAutocomplete
+                                        value={selectedZutat}
+                                        onChange={setSelectedZutat}
+                                        label="🥕 Zutaten"
+                                    />
+
                                     <PriceRangeSlider
                                         minValue={preisBounds.min}
                                         maxValue={preisBounds.max}
@@ -542,7 +672,9 @@ export default function LebensmittelListe() {
                                             {selectedKategorie && `Kategorie: ${selectedKategorie}`}
                                             {selectedKategorie && selectedMarke && ' • '}
                                             {selectedMarke && `Marke: ${selectedMarke}`}
-                                            {(selectedKategorie || selectedMarke) && (selectedMinPreis > preisBounds.min || selectedMaxPreis < preisBounds.max) && ' • '}
+                                            {(selectedKategorie || selectedMarke) && selectedZutat && ' • '}
+                                            {selectedZutat && `Zutat: ${selectedZutat}`}
+                                            {(selectedKategorie || selectedMarke || selectedZutat) && (selectedMinPreis > preisBounds.min || selectedMaxPreis < preisBounds.max) && ' • '}
                                             {(selectedMinPreis > preisBounds.min || selectedMaxPreis < preisBounds.max) &&
                                                 `Preis: ${selectedMinPreis.toFixed(2)}€ - ${selectedMaxPreis.toFixed(2)}€`}
                                         </div>
@@ -556,7 +688,7 @@ export default function LebensmittelListe() {
 
             <div className="max-w-7xl mx-auto px-4 py-6">
 
-                {/* Products Grid (gleich wie vorher) */}
+                {/* Products Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
                     {produkte.map(produkt => (
                         <div
@@ -614,7 +746,7 @@ export default function LebensmittelListe() {
                     ))}
                 </div>
 
-                {/* Pagination (gleich wie vorher) */}
+                {/* Pagination */}
                 <div className="mt-12 flex justify-center items-center gap-2">
                     <button
                         onClick={() => goToPage(currentPage - 1)}

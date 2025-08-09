@@ -35,22 +35,30 @@ export const getAlleMarken = async () => {
     return antwort.data;
 };
 
-// ERWEITERTE gefilterte Suche mit Preis
-export const getGefilterteProdukte = async (kategorie = null, marke = null, minPreis = null, maxPreis = null, page = 0, size = 18) => {
-    const antwort = await axios.get(`${BASIS}/produkte/gefiltert`, {
-        params: {
-            kategorie: kategorie,
-            marke: marke,
-            minPreis: minPreis,
-            maxPreis: maxPreis,
-            page: page,
-            size: size
-        }
+// Korrigierte gefilterte Suche - BASE_URL zu BASIS geändert
+export const getGefilterteProdukte = async (kategorie, marke, minPreis, maxPreis, zutat, page, size) => {
+    const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString()
     });
-    return antwort.data;
+
+    if (kategorie) params.append('kategorie', kategorie);
+    if (marke) params.append('marke', marke);
+    if (minPreis !== null && minPreis !== undefined) params.append('minPreis', minPreis.toString());
+    if (maxPreis !== null && maxPreis !== undefined) params.append('maxPreis', maxPreis.toString());
+    if (zutat && zutat.trim() !== '') params.append('zutat', zutat.trim());
+
+    console.log('API Call params:', params.toString()); // Debug-Log
+
+    const response = await fetch(`${BASIS}/produkte/gefiltert?${params}`);
+    const data = await response.json();
+
+    console.log('API Response:', data); // Debug-Log
+
+    return data;
 };
 
-// NEUE Preis-Range laden
+// Preis-Range laden
 export const getPreisRange = async () => {
     const antwort = await axios.get(`${BASIS}/produkte/preis-range`);
     return antwort.data;

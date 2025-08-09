@@ -1,6 +1,7 @@
 package com.example.FoodScore.Controller;
 
 import com.example.FoodScore.Persistenz.Produkt;
+import com.example.FoodScore.Persistenz.ProduktRepository;
 import com.example.FoodScore.Service.ProduktService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -15,9 +16,11 @@ import java.util.Map;
 public class ProduktController {
 
     private final ProduktService produktService;
+    private final ProduktRepository produktRepository;
 
-    public ProduktController(ProduktService produktService) {
+    public ProduktController(ProduktService produktService, ProduktRepository produktRepository) {
         this.produktService = produktService;
+        this.produktRepository = produktRepository;
     }
 
     @GetMapping
@@ -61,15 +64,41 @@ public class ProduktController {
         return range;
     }
 
-    // ERWEITERTE gefilterte Suche mit Preis
+
+    // Erweiterte gefilterte Suche mit Zutaten in ProduktController.java
+
     @GetMapping("/gefiltert")
     public Page<Produkt> gefilterteProdukte(
             @RequestParam(required = false) String kategorie,
             @RequestParam(required = false) String marke,
             @RequestParam(required = false) Double minPreis,
             @RequestParam(required = false) Double maxPreis,
+            @RequestParam(required = false) String zutat,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return produktService.getAlleGefilterte(kategorie, marke, minPreis, maxPreis, page, size);
+
+        // ERWEITERTE DEBUG-AUSGABE
+        System.out.println("🔍 === GEFILTERTE SUCHE DEBUG ===");
+        System.out.println("Kategorie: '" + kategorie + "'");
+        System.out.println("Marke: '" + marke + "'");
+        System.out.println("MinPreis: " + minPreis);
+        System.out.println("MaxPreis: " + maxPreis);
+        System.out.println("Zutat: '" + zutat + "'");
+        System.out.println("Page: " + page + ", Size: " + size);
+
+        Page<Produkt> result = produktService.getAlleGefilterteWithZutaten(kategorie, marke, minPreis, maxPreis, zutat, page, size);
+
+        System.out.println("🔍 ERGEBNIS: " + result.getTotalElements() + " Produkte gefunden");
+        System.out.println("🔍 ===============================");
+
+        return result;
+    }
+    // TEMPORÄRE Debug-Route hinzufügen
+    @GetMapping("/test-zutat")
+    public List<Produkt> testZutat(@RequestParam String zutat) {
+        System.out.println("🧪 TEST: Suche nach Zutat '" + zutat + "'");
+        List<Produkt> result = produktRepository.findByZutatOnly(zutat);
+        System.out.println("🧪 GEFUNDEN: " + result.size() + " Produkte");
+        return result;
     }
 }

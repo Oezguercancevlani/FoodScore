@@ -21,7 +21,6 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
     @Query("SELECT DISTINCT p.marke FROM Produkt p WHERE p.marke IS NOT NULL ORDER BY p.marke")
     List<String> findAllMarken();
 
-    // KORRIGIERTE Queries mit 'double' statt 'decimal'
     @Query("SELECT p FROM Produkt p WHERE " +
             "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
             "(:marke IS NULL OR p.marke = :marke) AND " +
@@ -33,7 +32,6 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
                                      @Param("maxPreis") Double maxPreis,
                                      Pageable pageable);
 
-    // Alte Methode für Kompatibilität
     @Query("SELECT p FROM Produkt p WHERE " +
             "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
             "(:marke IS NULL OR p.marke = :marke)")
@@ -41,10 +39,27 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
                                   @Param("marke") String marke,
                                   Pageable pageable);
 
-    // Korrigierte Min/Max Queries
     @Query("SELECT MIN(CAST(REPLACE(p.preis, ',', '.') AS double)) FROM Produkt p WHERE p.preis IS NOT NULL AND p.preis != ''")
     Double findMinPreis();
 
     @Query("SELECT MAX(CAST(REPLACE(p.preis, ',', '.') AS double)) FROM Produkt p WHERE p.preis IS NOT NULL AND p.preis != ''")
     Double findMaxPreis();
+
+    // VEREINFACHTE Zutaten-Suche ohne LOWER/UPPER Funktionen
+    @Query("SELECT p FROM Produkt p WHERE " +
+            "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
+            "(:marke IS NULL OR p.marke = :marke) AND " +
+            "(:minPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double) >= :minPreis) AND " +
+            "(:maxPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double) <= :maxPreis) AND " +
+            "(:zutat IS NULL OR :zutat = '' OR p.zutaten LIKE CONCAT('%', :zutat, '%'))")
+    Page<Produkt> findWithAllFiltersAndZutaten(@Param("kategorie") String kategorie,
+                                               @Param("marke") String marke,
+                                               @Param("minPreis") Double minPreis,
+                                               @Param("maxPreis") Double maxPreis,
+                                               @Param("zutat") String zutat,
+                                               Pageable pageable);
+
+    // VEREINFACHTE Debug-Query
+    @Query("SELECT p FROM Produkt p WHERE p.zutaten LIKE CONCAT('%', :zutat, '%')")
+    List<Produkt> findByZutatOnly(@Param("zutat") String zutat);
 }
