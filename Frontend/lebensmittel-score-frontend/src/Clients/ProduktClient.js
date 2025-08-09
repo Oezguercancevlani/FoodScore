@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const BASIS = "http://localhost:8080"
@@ -35,7 +34,7 @@ export const getAlleMarken = async () => {
     return antwort.data;
 };
 
-// Korrigierte gefilterte Suche - BASE_URL zu BASIS geändert
+// ERWEITERTE gefilterte Suche mit Multi-Zutaten Support
 export const getGefilterteProdukte = async (kategorie, marke, minPreis, maxPreis, zutat, page, size) => {
     const params = new URLSearchParams({
         page: page.toString(),
@@ -48,12 +47,13 @@ export const getGefilterteProdukte = async (kategorie, marke, minPreis, maxPreis
     if (maxPreis !== null && maxPreis !== undefined) params.append('maxPreis', maxPreis.toString());
     if (zutat && zutat.trim() !== '') params.append('zutat', zutat.trim());
 
-    console.log('API Call params:', params.toString()); // Debug-Log
+    console.log('🔍 API Call für gefilterte Suche:', params.toString());
+    console.log('🧪 Zutaten-Parameter:', zutat);
 
     const response = await fetch(`${BASIS}/produkte/gefiltert?${params}`);
     const data = await response.json();
 
-    console.log('API Response:', data); // Debug-Log
+    console.log('📊 API Response:', data.totalElements, 'Produkte gefunden');
 
     return data;
 };
@@ -62,4 +62,20 @@ export const getGefilterteProdukte = async (kategorie, marke, minPreis, maxPreis
 export const getPreisRange = async () => {
     const antwort = await axios.get(`${BASIS}/produkte/preis-range`);
     return antwort.data;
+};
+
+// NEUE Test-Funktion für Multi-Zutaten
+export const testMultiZutaten = async (zutaten) => {
+    const params = new URLSearchParams({
+        zutaten: zutaten
+    });
+
+    console.log('🧪 Test Multi-Zutaten:', zutaten);
+
+    const response = await fetch(`${BASIS}/produkte/test-multi-zutat?${params}`);
+    const data = await response.json();
+
+    console.log('🧪 Test Ergebnis:', data.length, 'Produkte');
+
+    return data;
 };

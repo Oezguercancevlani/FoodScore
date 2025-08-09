@@ -6,6 +6,7 @@ import com.example.FoodScore.Service.ProduktService;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,28 +78,49 @@ public class ProduktController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
 
-        // ERWEITERTE DEBUG-AUSGABE
         System.out.println("🔍 === GEFILTERTE SUCHE DEBUG ===");
-        System.out.println("Kategorie: '" + kategorie + "'");
-        System.out.println("Marke: '" + marke + "'");
-        System.out.println("MinPreis: " + minPreis);
-        System.out.println("MaxPreis: " + maxPreis);
-        System.out.println("Zutat: '" + zutat + "'");
-        System.out.println("Page: " + page + ", Size: " + size);
+        System.out.println("Zutaten: '" + zutat + "'");
 
-        Page<Produkt> result = produktService.getAlleGefilterteWithZutaten(kategorie, marke, minPreis, maxPreis, zutat, page, size);
+        Page<Produkt> result;
+
+        // Prüfen ob mehrere Zutaten (Komma-getrennt)
+        if (zutat != null && zutat.contains(",")) {
+            System.out.println("🎯 Multi-Zutaten Suche erkannt!");
+            result = produktService.getAlleGefilterteWithMultipleZutaten(kategorie, marke, minPreis, maxPreis, zutat, page, size);
+        } else {
+            // Einzelne Zutat oder keine
+            result = produktService.getAlleGefilterteWithZutaten(kategorie, marke, minPreis, maxPreis, zutat, page, size);
+        }
 
         System.out.println("🔍 ERGEBNIS: " + result.getTotalElements() + " Produkte gefunden");
-        System.out.println("🔍 ===============================");
-
         return result;
     }
-    // TEMPORÄRE Debug-Route hinzufügen
-    @GetMapping("/test-zutat")
-    public List<Produkt> testZutat(@RequestParam String zutat) {
-        System.out.println("🧪 TEST: Suche nach Zutat '" + zutat + "'");
-        List<Produkt> result = produktRepository.findByZutatOnly(zutat);
+
+    // Test-Endpoint für mehrere Zutaten
+    @GetMapping("/test-multi-zutat")
+    public List<Produkt> testMultiZutat(@RequestParam String zutaten) {
+        System.out.println("🧪 MULTI TEST: Suche nach Zutaten '" + zutaten + "'");
+
+        // Einfache Implementierung für Test
+        String[] parts = zutaten.split(",");
+        List<Produkt> alle = produktRepository.findAll();
+        List<Produkt> result = new ArrayList<>();
+
+        for (Produkt p : alle) {
+            boolean hatAlleZutaten = true;
+            for (String zutat : parts) {
+                if (p.getZutaten() == null || !p.getZutaten().contains(zutat.trim())) {
+                    hatAlleZutaten = false;
+                    break;
+                }
+            }
+            if (hatAlleZutaten) {
+                result.add(p);
+            }
+        }
+
         System.out.println("🧪 GEFUNDEN: " + result.size() + " Produkte");
         return result;
     }
+
 }

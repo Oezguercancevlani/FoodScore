@@ -45,7 +45,32 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
     @Query("SELECT MAX(CAST(REPLACE(p.preis, ',', '.') AS double)) FROM Produkt p WHERE p.preis IS NOT NULL AND p.preis != ''")
     Double findMaxPreis();
 
-    // VEREINFACHTE Zutaten-Suche ohne LOWER/UPPER Funktionen
+    // FUNKTIONALE Multi-Zutaten Suche mit Native SQL für PostgreSQL
+    @Query(value = "SELECT * FROM produkt p WHERE " +
+            "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
+            "(:marke IS NULL OR p.marke = :marke) AND " +
+            "(:minPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double precision) >= :minPreis) AND " +
+            "(:maxPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double precision) <= :maxPreis) AND " +
+            "(:#{#zutatArray.size()} = 0 OR " +
+            "(SELECT COUNT(*) FROM unnest(CAST(:zutatArray AS text[])) AS zutat " +
+            "WHERE LOWER(p.zutaten) LIKE LOWER(CONCAT('%', TRIM(zutat), '%'))) = :#{#zutatArray.size()})",
+            countQuery = "SELECT COUNT(*) FROM produkt p WHERE " +
+                    "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
+                    "(:marke IS NULL OR p.marke = :marke) AND " +
+                    "(:minPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double precision) >= :minPreis) AND " +
+                    "(:maxPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double precision) <= :maxPreis) AND " +
+                    "(:#{#zutatArray.size()} = 0 OR " +
+                    "(SELECT COUNT(*) FROM unnest(CAST(:zutatArray AS text[])) AS zutat " +
+                    "WHERE LOWER(p.zutaten) LIKE LOWER(CONCAT('%', TRIM(zutat), '%'))) = :#{#zutatArray.size()})",
+            nativeQuery = true)
+    Page<Produkt> findWithAllFiltersAndMultipleZutaten(@Param("kategorie") String kategorie,
+                                                       @Param("marke") String marke,
+                                                       @Param("minPreis") Double minPreis,
+                                                       @Param("maxPreis") Double maxPreis,
+                                                       @Param("zutatArray") List<String> zutatArray,
+                                                       Pageable pageable);
+
+    // Einfache Version für einzelne Zutat
     @Query("SELECT p FROM Produkt p WHERE " +
             "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
             "(:marke IS NULL OR p.marke = :marke) AND " +
@@ -59,7 +84,19 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
                                                @Param("zutat") String zutat,
                                                Pageable pageable);
 
-    // VEREINFACHTE Debug-Query
+    // Debug-Query
     @Query("SELECT p FROM Produkt p WHERE p.zutaten LIKE CONCAT('%', :zutat, '%')")
     List<Produkt> findByZutatOnly(@Param("zutat") String zutat);
+
+    // Zusätzliche Hilfsmethode für bessere Performance bei vielen Zutaten
+    @Query(value = "SELECT * FROM produkt p WHERE " +
+            "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
+            "(:marke IS NULL OR p.marke = :marke) AND " +
+            "(:minPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double precision) >= :minPreis) AND " +
+            "(:maxPreis IS NULL OR CAST(REPLACE(p.preis, ',', '.') AS double precision) <= :maxPreis)",
+            nativeQuery = true)
+    List<Produkt> findAllWithBasicFilters(@Param("kategorie") String kategorie,
+                                          @Param("marke") String marke,
+                                          @Param("minPreis") Double minPreis,
+                                          @Param("maxPreis") Double maxPreis);
 }
