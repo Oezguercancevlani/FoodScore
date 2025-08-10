@@ -69,6 +69,14 @@ public class ProduktService {
         return produktRepository.findById(id).orElseThrow();
     }
 
+    // NEUE Methode für Produktvergleich
+    public List<Produkt> findeProdukteFuerVergleich(List<Long> produktIds) {
+        return produktIds.stream()
+                .map(id -> produktRepository.findById(id).orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
     // Neue Methode in ProduktService.java
     public Page<Produkt> getAlleGefilterteWithZutaten(String kategorie, String marke,
                                                       Double minPreis, Double maxPreis,

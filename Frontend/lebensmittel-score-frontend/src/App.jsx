@@ -1,57 +1,79 @@
+
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Suche from "./Suche";
 import ProduktDetails from "./ProduktDetails";
 import LebensmittelListe from './LebensmittelListe';
+import VergleichsSeite from './VergleichsSeite.jsx'; // ← Ist schon richtig
+import { useProductComparison } from './hooks/ProduktVergleich'; // ← Korrigierter Pfad
 
 export default function App() {
-  const location = useLocation();
+    const location = useLocation();
+    const { comparisonList } = useProductComparison();
 
-  return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Apple-like Navigation */}
-      <nav className="bg-white/70 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+    return (
+        <div className="min-h-screen bg-slate-50">
+            {/* Apple-like Navigation */}
+            <nav className="bg-white/70 backdrop-blur-xl border-b border-slate-200/50 sticky top-0 z-50">
+                <div className="max-w-6xl mx-auto px-6 py-4">
+                    <div className="flex items-center justify-between">
 
-            {/* Logo/Brand */}
-            <Link to="/" className="flex items-center">
-              <h1 className="text-2xl font-thin text-slate-900 tracking-tight">
-                Food<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Score</span>
-              </h1>
-            </Link>
+                        {/* Logo/Brand */}
+                        <Link to="/" className="flex items-center">
+                            <h1 className="text-2xl font-thin text-slate-900 tracking-tight">
+                                Food<span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Score</span>
+                            </h1>
+                        </Link>
 
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-1">
-              <Link
-                to="/"
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                        {/* Navigation Links */}
+                        <div className="flex items-center space-x-1">
+                            <Link
+                                to="/"
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
                            ${location.pathname === '/'
-                             ? 'bg-slate-900 text-white shadow-lg'
-                             : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'}`}
-              >
-                Suche
-              </Link>
+                                    ? 'bg-slate-900 text-white shadow-lg'
+                                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'}`}
+                            >
+                                Suche
+                            </Link>
 
-              <Link
-                to="/lebensmittel"
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                            <Link
+                                to="/lebensmittel"
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
                            ${location.pathname === '/lebensmittel'
-                             ? 'bg-slate-900 text-white shadow-lg'
-                             : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'}`}
-              >
-                Alle Produkte
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+                                    ? 'bg-slate-900 text-white shadow-lg'
+                                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'}`}
+                            >
+                                Alle Produkte
+                            </Link>
 
-      {/* Main Content */}
-      <Routes>
-        <Route path="/" element={<Suche />} />
-        <Route path="/lebensmittel" element={<LebensmittelListe />} />
-        <Route path="/produkt/:id" element={<ProduktDetails />} />
-      </Routes>
-    </div>
-  );
+                            {/* NEUER Vergleich Button */}
+                            <Link
+                                to="/vergleich"
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative
+                           ${location.pathname === '/vergleich'
+                                    ? 'bg-slate-900 text-white shadow-lg'
+                                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'}`}
+                            >
+                                Vergleich
+                                {/* Badge für Anzahl der Produkte im Vergleich */}
+                                {comparisonList.length > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {comparisonList.length}
+                  </span>
+                                )}
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <Routes>
+                <Route path="/" element={<Suche />} />
+                <Route path="/lebensmittel" element={<LebensmittelListe />} />
+                <Route path="/produkt/:id" element={<ProduktDetails />} />
+                <Route path="/vergleich" element={<VergleichsSeite />} />
+            </Routes>
+        </div>
+    );
 }

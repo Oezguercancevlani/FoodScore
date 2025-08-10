@@ -1,6 +1,8 @@
+
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAlleProdukte, getProduktSeite, getAlleKategorien, getAlleMarken, getGefilterteProdukte, getPreisRange } from './Clients/ProduktClient';
+import { useProductComparison } from './hooks/ProduktVergleich';
 
 // ERWEITERTE Multi-Zutaten Eingabe Komponente
 function MultiZutatenInput({ value, onChange, label }) {
@@ -26,7 +28,6 @@ function MultiZutatenInput({ value, onChange, label }) {
     ];
 
     useEffect(() => {
-        // Bei Änderung von außen
         if (value) {
             const zutaten = value.split(',').map(z => z.trim()).filter(z => z.length > 0);
             setZutatenListe(zutaten);
@@ -36,7 +37,6 @@ function MultiZutatenInput({ value, onChange, label }) {
     }, [value]);
 
     useEffect(() => {
-        // Vorschläge filtern
         if (inputValue.trim().length >= 2) {
             const filtered = haeufieZutaten.filter(zutat =>
                 zutat.toLowerCase().includes(inputValue.toLowerCase()) &&
@@ -79,7 +79,6 @@ function MultiZutatenInput({ value, onChange, label }) {
                 {label}
             </label>
 
-            {/* Zutat Tags */}
             {zutatenListe.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                     {zutatenListe.map((zutat, index) => (
@@ -97,7 +96,6 @@ function MultiZutatenInput({ value, onChange, label }) {
                 </div>
             )}
 
-            {/* Eingabefeld */}
             <div className="relative">
                 <input
                     ref={inputRef}
@@ -128,7 +126,6 @@ function MultiZutatenInput({ value, onChange, label }) {
                 </div>
             </div>
 
-            {/* Dropdown mit Vorschlägen */}
             {showDropdown && filteredOptions.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg
                                backdrop-blur-xl max-h-60 overflow-y-auto">
@@ -146,7 +143,6 @@ function MultiZutatenInput({ value, onChange, label }) {
                 </div>
             )}
 
-            {/* Hilfetexte */}
             <div className="mt-2 text-xs text-slate-500">
                 💡 Tipp: Mehrere Zutaten mit Komma trennen oder Enter drücken. Alle Zutaten müssen enthalten sein.
             </div>
@@ -273,6 +269,98 @@ function SimpleAutocomplete({ value, onChange, options, placeholder, label }) {
     );
 }
 
+// NEUE Produktkarte mit Vergleichsfeature
+function ProductCard({ produkt, onDetailsClick }) {
+    const { addToComparison, comparisonList, canAddMore } = useProductComparison();
+
+    const isInComparison = comparisonList.find(p => p.id === produkt.id);
+
+    const handleAddToComparison = (e) => {
+        e.stopPropagation(); // Verhindert das Öffnen der Details
+        addToComparison(produkt);
+    };
+
+    return (
+        <div
+            onClick={() => onDetailsClick(produkt.id)}
+            className="bg-white/80 backdrop-blur-sm border border-slate-200/50 rounded-xl p-4
+                       hover:bg-white hover:border-slate-300 transition-all duration-200
+                       cursor-pointer shadow-sm hover:shadow-md group relative"
+        >
+            {/* Produktbild */}
+            <div className="aspect-square mb-4 bg-slate-50 rounded-lg overflow-hidden">
+                <img
+                    src={produkt.bildUrl}
+                    alt={produkt.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                    onError={(e) => {
+                        e.target.style.display = 'none';
+                    }}
+                />
+            </div>
+
+            {/* Produktinfo */}
+            <div className="space-y-2">
+                <h3 className="font-medium text-slate-900 line-clamp-2 leading-tight text-sm">
+                    {produkt.name}
+                </h3>
+
+                <p className="text-xs text-slate-600">{produkt.marke}</p>
+
+                {/* Preis und Vergleich Button */}
+                <div className="flex items-center justify-between pt-2">
+                    <span className="font-bold text-lg text-blue-600">
+                        {produkt.preis}€
+                    </span>
+
+                    {/* Vergleich Button */}
+                    <button
+                        onClick={handleAddToComparison}
+                        disabled={isInComparison || !canAddMore}
+                        className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
+                            isInComparison
+                                ? 'bg-green-100 text-green-800 cursor-default'
+                                : canAddMore
+                                    ? 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                                    : 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                        }`}
+                        title={
+                            isInComparison
+                                ? 'Bereits im Vergleich'
+                                : !canAddMore
+                                    ? 'Maximum von 5 Produkten erreicht'
+                                    : 'Zum Vergleich hinzufügen'
+                        }
+                    >
+                        {isInComparison ? '✓ Im Vergleich' : 'Vergleichen'}
+                    </button>
+                </div>
+
+                {/* Kategorie */}
+                <div className="pt-1">
+                    <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">
+                        {produkt.kategorie?.split(' > ').pop() || 'Unbekannt'}
+                    </span>
+                </div>
+
+                {/* Nährwerte Preview */}
+                <div className="pt-2 text-xs text-slate-500 space-y-1">
+                    {produkt.energieKcal && (
+                        <div>⚡ {produkt.energieKcal}</div>
+                    )}
+                    {(produkt.fett || produkt.kohlenhydrate || produkt.eiweiss) && (
+                        <div className="flex gap-3">
+                            {produkt.fett && <span>🧈 {produkt.fett}</span>}
+                            {produkt.kohlenhydrate && <span>🍞 {produkt.kohlenhydrate}</span>}
+                            {produkt.eiweiss && <span>🥩 {produkt.eiweiss}</span>}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // Hauptkomponente
 export default function LebensmittelListe() {
     const navigate = useNavigate();
@@ -299,6 +387,9 @@ export default function LebensmittelListe() {
 
     // Preis Range
     const [preisRange, setPreisRange] = useState({ min: 0, max: 100 });
+
+    // Vergleichsfeature
+    const { comparisonList } = useProductComparison();
 
     // Computed: Check if any filters are active
     const hasActiveFilters = selectedKategorie || selectedMarke || selectedZutaten || minPreis || maxPreis;
@@ -351,7 +442,6 @@ export default function LebensmittelListe() {
         try {
             let data;
 
-            // Prüfen ob Filter aktiv sind
             if (hasActiveFilters) {
                 console.log('🔍 Lade gefilterte Produkte...');
                 console.log('🧪 Zutaten Filter:', selectedZutaten);
@@ -399,17 +489,37 @@ export default function LebensmittelListe() {
                         </h1>
                         <p className="text-slate-600 font-light">
                             Durchsuche {totalElements.toLocaleString()} Produkte
+                            {comparisonList.length > 0 && (
+                                <span className="ml-4 text-blue-600 font-medium">
+                                    • {comparisonList.length} im Vergleich
+                                </span>
+                            )}
                         </p>
                     </div>
 
-                    <button
-                        onClick={() => navigate('/')}
-                        className="px-6 py-3 bg-white/80 backdrop-blur-sm border border-slate-200
-                                   rounded-xl hover:bg-white transition-all duration-200
-                                   text-slate-700 hover:text-slate-900 shadow-sm"
-                    >
-                        ← Zurück zur Suche
-                    </button>
+                    <div className="flex gap-3">
+                        {comparisonList.length > 0 && (
+                            <button
+                                onClick={() => navigate('/vergleich')}
+                                className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600
+                                         transition-all duration-200 shadow-sm font-medium relative"
+                            >
+                                Vergleich anzeigen
+                                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {comparisonList.length}
+                                </span>
+                            </button>
+                        )}
+
+                        <button
+                            onClick={() => navigate('/')}
+                            className="px-6 py-3 bg-white/80 backdrop-blur-sm border border-slate-200
+                                       rounded-xl hover:bg-white transition-all duration-200
+                                       text-slate-700 hover:text-slate-900 shadow-sm"
+                        >
+                            ← Zurück zur Suche
+                        </button>
+                    </div>
                 </div>
 
                 {/* Filter Toggle Button */}
@@ -427,268 +537,223 @@ export default function LebensmittelListe() {
                             </svg>
                             <span className="font-medium">Filter & Suche</span>
                             {hasActiveFilters && (
-                                <span className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">
-                                    {[selectedKategorie, selectedMarke, selectedZutaten, minPreis, maxPreis].filter(Boolean).length} aktiv
+                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    Aktiv
                                 </span>
                             )}
                         </div>
-                        <svg
-                            className={`w-5 h-5 transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`}
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                        </svg>
+
+                        <div className="flex items-center space-x-2">
+                            {hasActiveFilters && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        resetFilters();
+                                    }}
+                                    className="px-3 py-1 text-xs bg-slate-100 hover:bg-slate-200
+                                             rounded-full transition-colors text-slate-700 hover:text-slate-900"
+                                >
+                                    Filter zurücksetzen
+                                </button>
+                            )}
+
+                            <svg
+                                className={`w-4 h-4 transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`}
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </div>
                     </button>
                 </div>
 
-                {/* Aufklappbare Filter Sektion */}
-                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                    showFilters ? 'max-h-96 opacity-100 mb-8' : 'max-h-0 opacity-0'
-                }`}>
-                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-lg p-6">
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-xl font-medium text-slate-900">Filter</h2>
-                            <button
-                                onClick={resetFilters}
-                                className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg
-                                         hover:bg-slate-200 transition-colors text-sm"
-                            >
-                                Filter zurücksetzen
-                            </button>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Filter Panel */}
+                {showFilters && (
+                    <div className="mb-8 p-6 bg-white/80 backdrop-blur-sm border border-slate-200
+                                   rounded-xl shadow-sm space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                             {/* Kategorie Filter */}
                             <SimpleAutocomplete
                                 value={selectedKategorie}
                                 onChange={setSelectedKategorie}
                                 options={kategorien}
-                                placeholder="Alle Kategorien"
+                                placeholder="Kategorie wählen..."
                                 label="Kategorie"
                             />
 
-                            {/* Marke Filter */}
+                            {/* Marken Filter */}
                             <SimpleAutocomplete
                                 value={selectedMarke}
                                 onChange={setSelectedMarke}
                                 options={marken}
-                                placeholder="Alle Marken"
+                                placeholder="Marke wählen..."
                                 label="Marke"
                             />
 
-                            {/* Preis Filter */}
+                            {/* Preis Min */}
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                                    Preisbereich (€)
+                                    Min. Preis (€)
                                 </label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <input
-                                        type="number"
-                                        value={minPreis}
-                                        onChange={(e) => setMinPreis(e.target.value)}
-                                        placeholder={`Min (${preisRange.min}€)`}
-                                        min={preisRange.min}
-                                        max={preisRange.max}
-                                        step="0.01"
-                                        className="px-3 py-2 border border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm
-                                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    />
-                                    <input
-                                        type="number"
-                                        value={maxPreis}
-                                        onChange={(e) => setMaxPreis(e.target.value)}
-                                        placeholder={`Max (${preisRange.max}€)`}
-                                        min={preisRange.min}
-                                        max={preisRange.max}
-                                        step="0.01"
-                                        className="px-3 py-2 border border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm
-                                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                    />
-                                </div>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min={preisRange.min}
+                                    max={preisRange.max}
+                                    value={minPreis}
+                                    onChange={(e) => setMinPreis(e.target.value)}
+                                    placeholder={`Ab ${preisRange.min}€`}
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm
+                                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white
+                                             transition-all duration-200 text-sm"
+                                />
+                            </div>
+
+                            {/* Preis Max */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    Max. Preis (€)
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min={preisRange.min}
+                                    max={preisRange.max}
+                                    value={maxPreis}
+                                    onChange={(e) => setMaxPreis(e.target.value)}
+                                    placeholder={`Bis ${preisRange.max}€`}
+                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-white/80 backdrop-blur-sm
+                                             focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white
+                                             transition-all duration-200 text-sm"
+                                />
                             </div>
                         </div>
 
-                        {/* Multi-Zutaten Filter */}
-                        <div className="mt-6">
+                        {/* Multi-Zutaten Filter - Full Width */}
+                        <div className="pt-4 border-t border-slate-200">
                             <MultiZutatenInput
                                 value={selectedZutaten}
                                 onChange={setSelectedZutaten}
-                                label="🧪 Zutatenfilter (Multi-Suche)"
+                                label="Zutaten Filter (Erweiterte Suche)"
                             />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Results Header */}
-                {hasActiveFilters && (
-                    <div className="mb-6 p-4 bg-blue-50/80 backdrop-blur-sm rounded-xl border border-blue-200">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="font-medium text-blue-900">
-                                    {loading ? 'Suche läuft...' : `${totalElements} Produkte gefunden`}
-                                </h3>
-                                <div className="text-sm text-blue-700 mt-1 flex flex-wrap gap-4">
-                                    {selectedKategorie && <span className="flex items-center">📁 {selectedKategorie}</span>}
-                                    {selectedMarke && <span className="flex items-center">🏷️ {selectedMarke}</span>}
-                                    {selectedZutaten && <span className="flex items-center">🧪 Zutaten: {selectedZutaten}</span>}
-                                    {(minPreis || maxPreis) && (
-                                        <span className="flex items-center">💰 {minPreis || '0'}€ - {maxPreis || '∞'}€</span>
-                                    )}
-                                </div>
-                            </div>
                         </div>
                     </div>
                 )}
 
-                {/* Products Grid */}
-                {loading ? (
-                    <div className="flex items-center justify-center py-16">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                        <span className="ml-4 text-slate-600">Lade Produkte...</span>
+                {/* Results Summary */}
+                <div className="mb-6 flex items-center justify-between">
+                    <div className="text-sm text-slate-600">
+                        {loading ? (
+                            <span className="flex items-center gap-2">
+                                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                Lade Produkte...
+                            </span>
+                        ) : (
+                            <>
+                                {totalElements.toLocaleString()} Produkte gefunden
+                                {currentPage > 0 && ` • Seite ${currentPage + 1} von ${totalPages}`}
+                                {hasActiveFilters && ' • Gefiltert'}
+                            </>
+                        )}
                     </div>
-                ) : (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mb-8">
-                            {produkte.map((produkt) => (
-                                <div
-                                    key={produkt.id}
-                                    className="bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200/50
-                                             shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer
-                                             hover:border-blue-200 hover:bg-white group overflow-hidden"
-                                    onClick={() => navigate(`/produkt/${produkt.id}`)}
-                                >
-                                    {/* Product Image - VERKLEINERT */}
-                                    <div className="aspect-[4/3] bg-slate-100 rounded-t-xl mb-3 overflow-hidden relative">
-                                        {produkt.bildUrl ? (
-                                            <img
-                                                src={produkt.bildUrl}
-                                                alt={produkt.name}
-                                                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
-                                                loading="lazy"
-                                                onError={(e) => {
-                                                    e.target.style.display = 'none';
-                                                    e.target.nextSibling.style.display = 'flex';
-                                                }}
-                                            />
-                                        ) : null}
-                                        <div className={`absolute inset-0 flex items-center justify-center text-slate-400 ${produkt.bildUrl ? 'hidden' : 'flex'}`}>
-                                            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
 
-                                        {/* Price Badge */}
-                                        {produkt.preis && (
-                                            <div className="absolute top-2 right-2 px-2 py-1 bg-white/90 backdrop-blur-sm
-                                                          rounded-lg text-sm font-semibold text-blue-600 shadow-sm">
-                                                {produkt.preis}€
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Product Info */}
-                                    <div className="p-4 pt-0">
-                                        <h3 className="font-medium text-slate-900 mb-2 line-clamp-2 text-sm leading-tight">
-                                            {produkt.name}
-                                        </h3>
-
-                                        <div className="text-xs text-slate-600 mb-3 truncate">
-                                            {produkt.marke}
-                                        </div>
-
-                                        {/* Nutrition Info */}
-                                        <div className="flex items-center justify-between">
-                                            {produkt.energieKcal && (
-                                                <div className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">
-                                                    {produkt.energieKcal}
-                                                </div>
-                                            )}
-
-                                            {/* Hover Arrow */}
-                                            <div className="text-slate-400 group-hover:text-blue-500 transition-colors">
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-
-                                        {/* Zutaten Preview - nur wenn Zutatenfilter aktiv */}
-                                        {produkt.zutaten && selectedZutaten && (
-                                            <div className="mt-3 pt-3 border-t border-slate-200">
-                                                <div className="text-xs text-slate-500 line-clamp-2">
-                                                    🧪 {produkt.zutaten.substring(0, 80)}...
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
+                    {/* Pagination Info */}
+                    {totalPages > 1 && (
+                        <div className="text-sm text-slate-500">
+                            Zeige {(currentPage * pageSize) + 1} - {Math.min((currentPage + 1) * pageSize, totalElements)} von {totalElements.toLocaleString()}
                         </div>
+                    )}
+                </div>
 
-                        {/* Pagination */}
-                        {totalPages > 1 && (
-                            <div className="flex items-center justify-center space-x-2">
-                                <button
-                                    onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
-                                    disabled={currentPage === 0}
-                                    className="px-4 py-2 border border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm
-                                             disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors
-                                             flex items-center space-x-2"
-                                >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                    <span>Zurück</span>
-                                </button>
+                {/* Produktgrid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                    {produkte.map(produkt => (
+                        <ProductCard
+                            key={produkt.id}
+                            produkt={produkt}
+                            onDetailsClick={(id) => navigate(`/produkt/${id}`)}
+                        />
+                    ))}
+                </div>
 
-                                <div className="flex items-center space-x-2">
-                                    <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg font-medium">
-                                        {currentPage + 1}
-                                    </span>
-                                    <span className="text-slate-500">von</span>
-                                    <span className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg">
-                                        {totalPages}
-                                    </span>
-                                </div>
+                {/* Loading State */}
+                {loading && (
+                    <div className="text-center py-12">
+                        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="text-slate-600 font-medium">Lade Produkte...</p>
+                    </div>
+                )}
 
-                                <button
-                                    onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
-                                    disabled={currentPage >= totalPages - 1}
-                                    className="px-4 py-2 border border-slate-200 rounded-lg bg-white/80 backdrop-blur-sm
-                                             disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white transition-colors
-                                             flex items-center space-x-2"
-                                >
-                                    <span>Weiter</span>
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </div>
+                {/* Empty State */}
+                {!loading && produkte.length === 0 && (
+                    <div className="text-center py-12">
+                        <div className="text-6xl mb-4">🔍</div>
+                        <h3 className="text-xl font-semibold text-slate-900 mb-2">Keine Produkte gefunden</h3>
+                        <p className="text-slate-600 mb-4">
+                            {hasActiveFilters
+                                ? 'Versuchen Sie andere Suchkriterien oder setzen Sie die Filter zurück.'
+                                : 'Es konnten keine Produkte geladen werden.'
+                            }
+                        </p>
+                        {hasActiveFilters && (
+                            <button
+                                onClick={resetFilters}
+                                className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600
+                                         transition-all duration-200 shadow-sm font-medium"
+                            >
+                                Filter zurücksetzen
+                            </button>
                         )}
+                    </div>
+                )}
 
-                        {/* No Results */}
-                        {!loading && produkte.length === 0 && (
-                            <div className="text-center py-16">
-                                <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <h3 className="text-xl font-medium text-slate-900 mb-2">Keine Produkte gefunden</h3>
-                                <p className="text-slate-600 mb-4">
-                                    Versuche andere Suchkriterien oder entferne einige Filter.
-                                </p>
-                                {hasActiveFilters && (
-                                    <button
-                                        onClick={resetFilters}
-                                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                    >
-                                        Alle Filter zurücksetzen
-                                    </button>
-                                )}
-                            </div>
-                        )}
-                    </>
+                {/* Pagination */}
+                {totalPages > 1 && !loading && (
+                    <div className="flex items-center justify-center space-x-2">
+                        <button
+                            onClick={() => setCurrentPage(0)}
+                            disabled={currentPage === 0}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200
+                                     bg-white/80 backdrop-blur-sm hover:bg-white transition-colors
+                                     disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Erste
+                        </button>
+
+                        <button
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                            disabled={currentPage === 0}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200
+                                     bg-white/80 backdrop-blur-sm hover:bg-white transition-colors
+                                     disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Zurück
+                        </button>
+
+                        <span className="px-4 py-2 text-sm font-medium text-slate-700">
+                            Seite {currentPage + 1} von {totalPages}
+                        </span>
+
+                        <button
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                            disabled={currentPage >= totalPages - 1}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200
+                                     bg-white/80 backdrop-blur-sm hover:bg-white transition-colors
+                                     disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Weiter
+                        </button>
+
+                        <button
+                            onClick={() => setCurrentPage(totalPages - 1)}
+                            disabled={currentPage >= totalPages - 1}
+                            className="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200
+                                     bg-white/80 backdrop-blur-sm hover:bg-white transition-colors
+                                     disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Letzte
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
