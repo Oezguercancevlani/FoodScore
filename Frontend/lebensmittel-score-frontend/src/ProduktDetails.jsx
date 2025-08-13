@@ -1,3 +1,4 @@
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -12,6 +13,32 @@ export default function ProduktDetails() {
     const { addToComparison, comparisonList, canAddMore } = useProductComparison();
 
     const isInComparison = comparisonList.find(p => p.id === parseInt(id));
+
+    // Funktion zum Bestimmen der Score-Farbe
+    const getScoreColor = (score) => {
+        if (score === null || score === undefined) return 'bg-gray-300 text-gray-600';
+
+        const roundedScore = Math.round(score);
+        if (roundedScore >= 0 && roundedScore <= 20) return 'bg-red-500 text-white';
+        if (roundedScore > 20 && roundedScore <= 40) return 'bg-orange-500 text-white';
+        if (roundedScore > 40 && roundedScore <= 60) return 'bg-yellow-500 text-white';
+        if (roundedScore > 60 && roundedScore <= 80) return 'bg-green-400 text-white';
+        if (roundedScore > 80 && roundedScore <= 100) return 'bg-green-600 text-white';
+        return 'bg-gray-300 text-gray-600';
+    };
+
+    // Funktion zum Bestimmen der Score-Beschreibung
+    const getScoreDescription = (score) => {
+        if (score === null || score === undefined) return 'Nicht bewertet';
+
+        const roundedScore = Math.round(score);
+        if (roundedScore >= 0 && roundedScore <= 20) return 'Sehr schlecht';
+        if (roundedScore > 20 && roundedScore <= 40) return 'Schlecht';
+        if (roundedScore > 40 && roundedScore <= 60) return 'Mittelmäßig';
+        if (roundedScore > 60 && roundedScore <= 80) return 'Gut';
+        if (roundedScore > 80 && roundedScore <= 100) return 'Sehr gut';
+        return 'Unbekannt';
+    };
 
     useEffect(() => {
         axios.get(`http://localhost:8080/produkte/${id}`)
@@ -132,9 +159,24 @@ export default function ProduktDetails() {
                                     <span className="text-slate-500">EAN: {produkt.ean}</span>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <div className="text-3xl font-bold text-blue-600 mb-1">{produkt.preis}€</div>
-                                <div className="text-sm text-slate-500">pro Stück</div>
+                            <div className="text-right flex items-start gap-4">
+                                <div>
+                                    <div className="text-3xl font-bold text-blue-600 mb-1">{produkt.preis}€</div>
+                                    <div className="text-sm text-slate-500">pro Stück</div>
+                                </div>
+
+                                {/* Score Display */}
+                                <div className="flex flex-col items-center">
+                                    <div className={`px-4 py-2 rounded-xl font-bold text-lg shadow-sm ${getScoreColor(produkt.wertungsScore)}`}>
+                                        {produkt.wertungsScore !== null && produkt.wertungsScore !== undefined
+                                            ? Math.round(produkt.wertungsScore)
+                                            : '--'
+                                        }
+                                    </div>
+                                    <div className="text-xs text-slate-500 mt-1 text-center">
+                                        {getScoreDescription(produkt.wertungsScore)}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -154,6 +196,50 @@ export default function ProduktDetails() {
                                     }}
                                 />
                             </div>
+
+                            {/* Score-Details Card */}
+                            {produkt.wertungsScore !== null && produkt.wertungsScore !== undefined && (
+                                <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Qualitätsbewertung
+                                    </h3>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-slate-600">Score:</span>
+                                            <div className={`px-3 py-1 rounded-lg font-semibold ${getScoreColor(produkt.wertungsScore)}`}>
+                                                {Math.round(produkt.wertungsScore)}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-slate-600">Bewertung:</span>
+                                            <span className="font-medium text-slate-800">{getScoreDescription(produkt.wertungsScore)}</span>
+                                        </div>
+
+                                        {/* Score-Skala Visualisierung */}
+                                        <div className="mt-4">
+                                            <div className="text-xs text-slate-500 mb-2">Bewertungsskala</div>
+                                            <div className="flex rounded-lg overflow-hidden h-2">
+                                                <div className="bg-red-500 flex-1"></div>
+                                                <div className="bg-orange-500 flex-1"></div>
+                                                <div className="bg-yellow-500 flex-1"></div>
+                                                <div className="bg-green-400 flex-1"></div>
+                                                <div className="bg-green-600 flex-1"></div>
+                                            </div>
+                                            <div className="flex justify-between text-xs text-slate-400 mt-1">
+                                                <span>0</span>
+                                                <span>20</span>
+                                                <span>40</span>
+                                                <span>60</span>
+                                                <span>80</span>
+                                                <span>100</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Quelle */}
                             <div className="text-center">
@@ -181,14 +267,12 @@ export default function ProduktDetails() {
                                         </svg>
                                         <span className="font-medium">Im Vergleich</span>
                                     </div>
-                                    <p className="text-sm text-green-700 mb-3">
-                                        Dieses Produkt ist bereits in Ihrem Vergleich.
-                                        Sie vergleichen derzeit {comparisonList.length} Produkt{comparisonList.length > 1 ? 'e' : ''}.
+                                    <p className="text-sm text-green-700">
+                                        Dieses Produkt wurde zu Ihrem Vergleich hinzugefügt.
                                     </p>
                                     <button
                                         onClick={() => navigate('/vergleich')}
-                                        className="w-full px-4 py-2 bg-green-600 text-white rounded-lg
-                                                 hover:bg-green-700 transition-colors text-sm font-medium"
+                                        className="mt-2 text-sm bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-lg transition-colors"
                                     >
                                         Vergleich anzeigen
                                     </button>
@@ -196,125 +280,85 @@ export default function ProduktDetails() {
                             )}
                         </div>
 
-                        {/* Details */}
+                        {/* Produktinformationen */}
                         <div className="space-y-6">
+                            {/* Nährwerte */}
+                            <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                                <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                    </svg>
+                                    Nährwerte
+                                </h3>
+
+                                <div className="space-y-3">
+                                    {produkt.energieKcal && (
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-600">Energie (kcal):</span>
+                                            <span className="font-medium">{produkt.energieKcal}</span>
+                                        </div>
+                                    )}
+                                    {produkt.energieKj && (
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-600">Energie (kJ):</span>
+                                            <span className="font-medium">{produkt.energieKj}</span>
+                                        </div>
+                                    )}
+                                    {produkt.fett && (
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-600">Fett:</span>
+                                            <span className="font-medium">{produkt.fett}</span>
+                                        </div>
+                                    )}
+                                    {produkt.gesaettigteFettsaueren && (
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-600 text-sm pl-4">davon gesättigte Fettsäuren:</span>
+                                            <span className="font-medium">{produkt.gesaettigteFettsaueren}</span>
+                                        </div>
+                                    )}
+                                    {produkt.kohlenhydrate && (
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-600">Kohlenhydrate:</span>
+                                            <span className="font-medium">{produkt.kohlenhydrate}</span>
+                                        </div>
+                                    )}
+                                    {produkt.zucker && (
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-600 text-sm pl-4">davon Zucker:</span>
+                                            <span className="font-medium">{produkt.zucker}</span>
+                                        </div>
+                                    )}
+                                    {produkt.eiweiss && (
+                                        <div className="flex justify-between py-2 border-b border-slate-100">
+                                            <span className="text-slate-600">Eiweiß:</span>
+                                            <span className="font-medium">{produkt.eiweiss}</span>
+                                        </div>
+                                    )}
+                                    {produkt.salz && (
+                                        <div className="flex justify-between py-2">
+                                            <span className="text-slate-600">Salz:</span>
+                                            <span className="font-medium">{produkt.salz}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
 
                             {/* Zutaten */}
-                            <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-100">
-                                <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                    Zutaten
-                                </h3>
-                                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-                                    {produkt.zutaten || 'Keine Zutatenliste verfügbar'}
-                                </p>
-                            </div>
-
-                            {/* Nährwerte */}
-                            <div className="bg-slate-50/80 rounded-xl p-4 border border-slate-100">
-                                <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                    Nährwerte pro 100g/ml
-                                </h3>
-                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                    <div className="bg-white rounded-lg p-3 border border-slate-100">
-                                        <div className="text-slate-500 text-xs mb-1">Energie</div>
-                                        <div className="font-semibold text-slate-900">
-                                            {produkt.energieKcal || '-'}
-                                            {produkt.energieKj && (
-                                                <span className="text-xs text-slate-500 ml-1">({produkt.energieKj})</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="bg-white rounded-lg p-3 border border-slate-100">
-                                        <div className="text-slate-500 text-xs mb-1">Fett</div>
-                                        <div className="font-semibold text-slate-900">{produkt.fett || '-'}</div>
-                                        {produkt.gesaettigteFettsaueren && (
-                                            <div className="text-xs text-slate-600">davon gesättigt: {produkt.gesaettigteFettsaueren}</div>
-                                        )}
-                                    </div>
-                                    <div className="bg-white rounded-lg p-3 border border-slate-100">
-                                        <div className="text-slate-500 text-xs mb-1">Kohlenhydrate</div>
-                                        <div className="font-semibold text-slate-900">{produkt.kohlenhydrate || '-'}</div>
-                                        {produkt.zucker && (
-                                            <div className="text-xs text-slate-600">davon Zucker: {produkt.zucker}</div>
-                                        )}
-                                    </div>
-                                    <div className="bg-white rounded-lg p-3 border border-slate-100">
-                                        <div className="text-slate-500 text-xs mb-1">Eiweiß</div>
-                                        <div className="font-semibold text-slate-900">{produkt.eiweiss || '-'}</div>
-                                        {produkt.salz && (
-                                            <div className="text-xs text-slate-600">Salz: {produkt.salz}</div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Vergleichs-Empfehlungen */}
-                            {!isInComparison && comparisonList.length > 0 && (
-                                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                                    <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                        Vergleichsvorschlag
+                            {produkt.zutaten && (
+                                <div className="bg-white rounded-xl p-4 border border-slate-100 shadow-sm">
+                                    <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        Zutaten
                                     </h3>
-                                    <p className="text-sm text-blue-700 mb-3">
-                                        Sie haben bereits {comparisonList.length} Produkt{comparisonList.length > 1 ? 'e' : ''} zum Vergleich hinzugefügt.
-                                        Fügen Sie dieses Produkt hinzu, um die Unterschiede zu sehen.
+                                    <p className="text-slate-700 leading-relaxed text-sm">
+                                        {produkt.zutaten}
                                     </p>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={handleAddToComparison}
-                                            disabled={!canAddMore}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700
-                                                     transition-colors text-sm font-medium disabled:opacity-50"
-                                        >
-                                            Hinzufügen
-                                        </button>
-                                        <button
-                                            onClick={() => navigate('/vergleich')}
-                                            className="px-4 py-2 bg-white text-blue-600 border border-blue-200
-                                                     rounded-lg hover:bg-blue-50 transition-colors text-sm font-medium"
-                                        >
-                                            Vergleich anzeigen
-                                        </button>
-                                    </div>
                                 </div>
                             )}
-
-                            {/* Future Features */}
-                            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-200">
-                                <h3 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                                    Kommt bald
-                                </h3>
-                                <p className="text-sm text-purple-700 italic">
-                                    🏆 Nutri-Score • 🔍 Ähnliche Produkte • 📈 Preisverlauf • 💬 Bewertungen
-                                </p>
-                            </div>
                         </div>
                     </div>
-                </div>
-
-                {/* Zusätzliche Aktionen */}
-                <div className="flex items-center justify-center gap-4 mt-8">
-                    <button
-                        onClick={() => navigate('/lebensmittel')}
-                        className="px-6 py-3 bg-white/80 backdrop-blur-sm border border-slate-200
-                                 rounded-xl hover:bg-white transition-all duration-200
-                                 text-slate-700 hover:text-slate-900 shadow-sm font-medium"
-                    >
-                        ← Zurück zur Liste
-                    </button>
-
-                    {comparisonList.length >= 2 && (
-                        <button
-                            onClick={() => navigate('/vergleich')}
-                            className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600
-                                     transition-all duration-200 shadow-sm font-medium"
-                        >
-                            Produktvergleich anzeigen
-                        </button>
-                    )}
                 </div>
             </div>
         </div>

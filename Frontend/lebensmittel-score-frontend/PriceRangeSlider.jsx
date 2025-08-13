@@ -1,4 +1,3 @@
-// NEUE PriceRangeSlider Komponente - Ersetze diese Funktion in deiner Datei
 function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange }) {
     const [minVal, setMinVal] = useState(currentMin);
     const [maxVal, setMaxVal] = useState(currentMax);
@@ -12,7 +11,6 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
         setMaxInput(currentMax.toFixed(2));
     }, [currentMin, currentMax]);
 
-    // Slider Events
     const handleMinSliderChange = (e) => {
         const value = Math.min(Number(e.target.value), maxVal - 0.01);
         setMinVal(value);
@@ -27,10 +25,8 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
         onChange(minVal, value);
     };
 
-    // Input Events
     const handleMinInputChange = (e) => {
         const value = e.target.value;
-        // Nur Zahlen, Komma und Punkt erlauben
         if (/^[\d.,]*$/.test(value)) {
             setMinInput(value);
         }
@@ -90,7 +86,7 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
                 💰 Preisbereich
             </label>
 
-            {/* Input Fields */}
+
             <div className="grid grid-cols-2 gap-3">
                 <div>
                     <label className="block text-xs text-slate-500 mb-1">Von</label>
@@ -126,7 +122,7 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
                 </div>
             </div>
 
-            {/* Range Slider */}
+
             <div className="relative mt-6">
                 <div className="relative h-2 bg-slate-200 rounded-lg">
                     {/* Active Range */}
@@ -138,7 +134,7 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
                         }}
                     />
 
-                    {/* Min Range Input */}
+
                     <input
                         type="range"
                         min={minValue}
@@ -155,7 +151,7 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
                         style={{ pointerEvents: 'all' }}
                     />
 
-                    {/* Max Range Input */}
+
                     <input
                         type="range"
                         min={minValue}
@@ -174,7 +170,7 @@ function PriceRangeSlider({ minValue, maxValue, currentMin, currentMax, onChange
                 </div>
             </div>
 
-            {/* Display Values */}
+
             <div className="flex justify-between text-sm text-slate-600 pt-2">
                 <span className="font-medium">{minVal.toFixed(2)}€</span>
                 <span className="font-medium">{maxVal.toFixed(2)}€</span>

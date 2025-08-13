@@ -2,7 +2,6 @@ import { useState, useCallback, useEffect } from 'react';
 import { vergleicheProdukte } from '../Clients/VergleichsClient';
 
 export const useProductComparison = () => {
-    // Lokaler State mit Persistierung
     const [comparisonList, setComparisonList] = useState(() => {
         const saved = localStorage.getItem('productComparison');
         return saved ? JSON.parse(saved) : [];
@@ -12,18 +11,15 @@ export const useProductComparison = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Lokalen Storage bei Änderungen aktualisieren
     useEffect(() => {
         localStorage.setItem('productComparison', JSON.stringify(comparisonList));
     }, [comparisonList]);
 
     const addToComparison = useCallback((product) => {
         setComparisonList(prev => {
-            // Prüfen ob Produkt bereits in der Liste
             if (prev.find(p => p.id === product.id)) {
                 return prev;
             }
-            // Maximal 5 Produkte
             if (prev.length >= 5) {
                 alert('Maximal 5 Produkte können verglichen werden!');
                 return prev;
@@ -34,7 +30,6 @@ export const useProductComparison = () => {
 
     const removeFromComparison = useCallback((productId) => {
         setComparisonList(prev => prev.filter(p => p.id !== productId));
-        // Reset comparison data wenn Produkte entfernt werden
         setComparisonData(null);
     }, []);
 
@@ -65,7 +60,6 @@ export const useProductComparison = () => {
         }
     }, [comparisonList]);
 
-    // Automatischer Vergleich bei Änderungen der Liste
     useEffect(() => {
         if (comparisonList.length >= 2) {
             compareProducts();

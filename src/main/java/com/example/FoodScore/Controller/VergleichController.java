@@ -50,10 +50,8 @@ public class VergleichController {
     private Map<String, Object> erstelleVergleichsanalyse(List<Produkt> produkte) {
         Map<String, Object> analyse = new HashMap<>();
 
-        // Nährwertvergleiche
         Map<String, Map<String, Object>> naehrwerte = new HashMap<>();
 
-        // Kalorien-Vergleich
         naehrwerte.put("kalorien", vergleicheNaehrwert(produkte, Produkt::getEnergieKcal, "kcal"));
         naehrwerte.put("fett", vergleicheNaehrwert(produkte, Produkt::getFett, "g"));
         naehrwerte.put("gesaettigteFettsaueren", vergleicheNaehrwert(produkte, Produkt::getGesaettigteFettsaueren, "g"));
@@ -64,13 +62,53 @@ public class VergleichController {
 
         analyse.put("naehrwerte", naehrwerte);
 
-        // Preisvergleich
+        analyse.put("scores", vergleicheScores(produkte));
+
         analyse.put("preise", vergleichePreise(produkte));
 
-        // Kategorien-Übersicht
         analyse.put("kategorien", vergleicheKategorien(produkte));
 
         return analyse;
+    }
+
+    private Map<String, Object> vergleicheScores(List<Produkt> produkte) {
+        Map<String, Object> scoreVergleich = new HashMap<>();
+
+        Double minScore = null, maxScore = null;
+        Long besteScoreId = null, schlechtesteScoreId = null;
+        int validScores = 0;
+        double durchschnitt = 0.0;
+
+        for (Produkt produkt : produkte) {
+            Double score = produkt.getWertungsScore();
+            if (score != null) {
+                validScores++;
+                durchschnitt += score;
+
+                if (minScore == null || score < minScore) {
+                    minScore = score;
+                    schlechtesteScoreId = produkt.getId();
+                }
+                if (maxScore == null || score > maxScore) {
+                    maxScore = score;
+                    besteScoreId = produkt.getId();
+                }
+            }
+        }
+
+        if (validScores > 0) {
+            durchschnitt = durchschnitt / validScores;
+        }
+
+        scoreVergleich.put("minScore", minScore);
+        scoreVergleich.put("maxScore", maxScore);
+        scoreVergleich.put("durchschnitt", Math.round(durchschnitt * 100.0) / 100.0);
+        scoreVergleich.put("besteScoreId", besteScoreId);
+        scoreVergleich.put("schlechtesteScoreId", schlechtesteScoreId);
+        scoreVergleich.put("validScores", validScores);
+        scoreVergleich.put("einheit", "Punkte");
+
+        return scoreVergleich;
     }
 
     private Map<String, Object> vergleicheNaehrwert(List<Produkt> produkte,
@@ -86,10 +124,7 @@ public class VergleichController {
             String wertStr = getter.apply(produkt);
             if (wertStr != null && !wertStr.trim().isEmpty()) {
                 try {
-                    // Entferne Einheiten, Kommas und andere Zeichen - behalte nur Zahlen, Punkte und Kommas
                     String cleanWert = wertStr.replaceAll("[^0-9.,]", "").replace(",", ".");
-
-                    // Entferne führende/nachfolgende Punkte
                     cleanWert = cleanWert.replaceAll("^[.]+|[.]+$", "");
 
                     if (!cleanWert.isEmpty() && !cleanWert.equals(".")) {
@@ -106,7 +141,6 @@ public class VergleichController {
                         }
                     }
                 } catch (NumberFormatException e) {
-                    // Ignoriere ungültige Werte
                 }
             }
         }
@@ -145,7 +179,6 @@ public class VergleichController {
                         teuersteId = produkt.getId();
                     }
                 } catch (NumberFormatException e) {
-                    // Ignoriere ungültige Preise
                 }
             }
         }

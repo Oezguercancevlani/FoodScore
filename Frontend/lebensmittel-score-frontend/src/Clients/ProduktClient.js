@@ -34,7 +34,6 @@ export const getAlleMarken = async () => {
     return antwort.data;
 };
 
-// ERWEITERTE gefilterte Suche mit Multi-Zutaten Support
 export const getGefilterteProdukte = async (kategorie, marke, minPreis, maxPreis, zutat, page, size) => {
     const params = new URLSearchParams({
         page: page.toString(),
@@ -58,13 +57,11 @@ export const getGefilterteProdukte = async (kategorie, marke, minPreis, maxPreis
     return data;
 };
 
-// Preis-Range laden
 export const getPreisRange = async () => {
     const antwort = await axios.get(`${BASIS}/produkte/preis-range`);
     return antwort.data;
 };
 
-// NEUE Test-Funktion für Multi-Zutaten
 export const testMultiZutaten = async (zutaten) => {
     const params = new URLSearchParams({
         zutaten: zutaten

@@ -2,11 +2,9 @@ package com.example.FoodScore.Persistenz;
 
 import jakarta.persistence.*;
 
-
 import java.math.BigDecimal;
 
 @Entity
-
 public class Produkt {
 
     @Id
@@ -15,6 +13,53 @@ public class Produkt {
 
     @Column(columnDefinition = "TEXT")
     private String name;
+
+    @Column(columnDefinition = "TEXT")
+    private String marke;
+
+    @Column(columnDefinition = "TEXT")
+    private String kategorie;
+
+    @Column(columnDefinition = "TEXT")
+    private String zutaten;
+
+    @Column(columnDefinition = "TEXT")
+    private String energieKj;
+
+    @Column(columnDefinition = "TEXT")
+    private String energieKcal;
+
+    @Column(columnDefinition = "TEXT")
+    private String fett;
+
+    @Column(columnDefinition = "TEXT")
+    private String gesaettigteFettsaueren;
+
+    @Column(columnDefinition = "TEXT")
+    private String kohlenhydrate;
+
+    @Column(columnDefinition = "TEXT")
+    private String zucker;
+
+    @Column(columnDefinition = "TEXT")
+    private String eiweiss;
+
+    @Column(columnDefinition = "TEXT")
+    private String salz;
+
+    private Long ean;
+
+    @Column(columnDefinition = "TEXT")
+    private String preis;
+
+    @Column(columnDefinition = "TEXT")
+    private String bildUrl;
+
+    @Column(columnDefinition = "TEXT")
+    private String quelleUrl;
+
+    @Column
+    private Double wertungsScore;
 
     public Long getId() {
         return id;
@@ -152,47 +197,11 @@ public class Produkt {
         this.quelleUrl = quelleUrl;
     }
 
-    @Column(columnDefinition = "TEXT")
-    private String marke;
+    public Double getWertungsScore() {
+        return wertungsScore;
+    }
 
-    @Column(columnDefinition = "TEXT")
-    private String kategorie;
-
-    @Column(columnDefinition = "TEXT")
-    private String zutaten;
-
-    @Column(columnDefinition = "TEXT")
-    private String energieKj;
-
-    @Column(columnDefinition = "TEXT")
-    private String energieKcal;
-
-    @Column(columnDefinition = "TEXT")
-    private String fett;
-
-    @Column(columnDefinition = "TEXT")
-    private String gesaettigteFettsaueren;
-
-    @Column(columnDefinition = "TEXT")
-    private String kohlenhydrate;
-
-    @Column(columnDefinition = "TEXT")
-    private String zucker;
-
-    @Column(columnDefinition = "TEXT")
-    private String eiweiss;
-
-    @Column(columnDefinition = "TEXT")
-    private String salz;
-
-    private Long ean;
-
-    @Column(columnDefinition = "TEXT")
-    private String preis;
-    @Column(columnDefinition = "TEXT")
-    private String bildUrl;
-    @Column(columnDefinition = "TEXT")
-    private String quelleUrl;
-
-
+    public void setWertungsScore(Double wertungsScore) {
+        this.wertungsScore = wertungsScore;
+    }
 }

@@ -56,7 +56,6 @@ public class ProduktController {
         return produktService.getAlleMarken();
     }
 
-    // NEUE Preis-Range Endpoint
     @GetMapping("/preis-range")
     public Map<String, Double> preisRange() {
         Map<String, Double> range = new HashMap<>();
@@ -66,7 +65,6 @@ public class ProduktController {
     }
 
 
-    // Erweiterte gefilterte Suche mit Zutaten in ProduktController.java
 
     @GetMapping("/gefiltert")
     public Page<Produkt> gefilterteProdukte(
@@ -83,12 +81,10 @@ public class ProduktController {
 
         Page<Produkt> result;
 
-        // Prüfen ob mehrere Zutaten (Komma-getrennt)
         if (zutat != null && zutat.contains(",")) {
             System.out.println("🎯 Multi-Zutaten Suche erkannt!");
             result = produktService.getAlleGefilterteWithMultipleZutaten(kategorie, marke, minPreis, maxPreis, zutat, page, size);
         } else {
-            // Einzelne Zutat oder keine
             result = produktService.getAlleGefilterteWithZutaten(kategorie, marke, minPreis, maxPreis, zutat, page, size);
         }
 
@@ -96,12 +92,10 @@ public class ProduktController {
         return result;
     }
 
-    // Test-Endpoint für mehrere Zutaten
     @GetMapping("/test-multi-zutat")
     public List<Produkt> testMultiZutat(@RequestParam String zutaten) {
-        System.out.println("🧪 MULTI TEST: Suche nach Zutaten '" + zutaten + "'");
+        System.out.println(" MULTI TEST: Suche nach Zutaten '" + zutaten + "'");
 
-        // Einfache Implementierung für Test
         String[] parts = zutaten.split(",");
         List<Produkt> alle = produktRepository.findAll();
         List<Produkt> result = new ArrayList<>();
@@ -119,7 +113,7 @@ public class ProduktController {
             }
         }
 
-        System.out.println("🧪 GEFUNDEN: " + result.size() + " Produkte");
+        System.out.println(" GEFUNDEN: " + result.size() + " Produkte");
         return result;
     }
 

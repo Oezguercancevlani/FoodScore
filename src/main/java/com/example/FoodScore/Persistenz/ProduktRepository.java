@@ -45,7 +45,6 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
     @Query("SELECT MAX(CAST(REPLACE(p.preis, ',', '.') AS double)) FROM Produkt p WHERE p.preis IS NOT NULL AND p.preis != ''")
     Double findMaxPreis();
 
-    // FUNKTIONALE Multi-Zutaten Suche mit Native SQL für PostgreSQL
     @Query(value = "SELECT * FROM produkt p WHERE " +
             "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
             "(:marke IS NULL OR p.marke = :marke) AND " +
@@ -70,7 +69,6 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
                                                        @Param("zutatArray") List<String> zutatArray,
                                                        Pageable pageable);
 
-    // Einfache Version für einzelne Zutat
     @Query("SELECT p FROM Produkt p WHERE " +
             "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
             "(:marke IS NULL OR p.marke = :marke) AND " +
@@ -84,11 +82,9 @@ public interface ProduktRepository extends JpaRepository<Produkt, Long> {
                                                @Param("zutat") String zutat,
                                                Pageable pageable);
 
-    // Debug-Query
     @Query("SELECT p FROM Produkt p WHERE p.zutaten LIKE CONCAT('%', :zutat, '%')")
     List<Produkt> findByZutatOnly(@Param("zutat") String zutat);
 
-    // Zusätzliche Hilfsmethode für bessere Performance bei vielen Zutaten
     @Query(value = "SELECT * FROM produkt p WHERE " +
             "(:kategorie IS NULL OR p.kategorie = :kategorie) AND " +
             "(:marke IS NULL OR p.marke = :marke) AND " +

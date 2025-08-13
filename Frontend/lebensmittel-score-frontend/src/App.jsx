@@ -1,10 +1,10 @@
-
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Suche from "./Suche";
 import ProduktDetails from "./ProduktDetails";
 import LebensmittelListe from './LebensmittelListe';
-import VergleichsSeite from './VergleichsSeite.jsx'; // ← Ist schon richtig
-import { useProductComparison } from './hooks/ProduktVergleich'; // ← Korrigierter Pfad
+import VergleichsSeite from './VergleichsSeite.jsx';
+import ZutatenListe from './ZutatenListe.jsx'; // NEU
+import { useProductComparison } from './hooks/ProduktVergleich';
 
 export default function App() {
     const location = useLocation();
@@ -46,7 +46,17 @@ export default function App() {
                                 Alle Produkte
                             </Link>
 
-                            {/* NEUER Vergleich Button */}
+                            {/* NEU: Zutaten-Dictionary */}
+                            <Link
+                                to="/zutaten"
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200
+                           ${location.pathname === '/zutaten'
+                                    ? 'bg-slate-900 text-white shadow-lg'
+                                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'}`}
+                            >
+                                Zutaten-Dictionary
+                            </Link>
+
                             <Link
                                 to="/vergleich"
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 relative
@@ -55,11 +65,10 @@ export default function App() {
                                     : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'}`}
                             >
                                 Vergleich
-                                {/* Badge für Anzahl der Produkte im Vergleich */}
                                 {comparisonList.length > 0 && (
                                     <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {comparisonList.length}
-                  </span>
+                                        {comparisonList.length}
+                                    </span>
                                 )}
                             </Link>
                         </div>
@@ -73,6 +82,7 @@ export default function App() {
                 <Route path="/lebensmittel" element={<LebensmittelListe />} />
                 <Route path="/produkt/:id" element={<ProduktDetails />} />
                 <Route path="/vergleich" element={<VergleichsSeite />} />
+                <Route path="/zutaten" element={<ZutatenListe />} /> {/* NEU */}
             </Routes>
         </div>
     );
