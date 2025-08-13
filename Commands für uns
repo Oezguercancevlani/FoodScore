@@ -12,3 +12,5 @@ dann auf Link klicken das im Terminal angezeigt wird
 bitte für frontend folgendes noch installieren mit diesem command:
 cd lebensmittel-score-frontend
 npm install react-router-dom
+
+http://localhost:8080/api/score/calculate-all

@@ -1,4 +1,5 @@
 import React from 'react';
+import ScoreBadge from './components/ScoreBadge.jsx';
 import { useProductComparison } from './hooks/ProduktVergleich';
 
 const ProductComparison = () => {
@@ -183,6 +184,32 @@ const ComparisonTable = ({ products, analysis }) => {
                         })}
                     </tr>
 
+                    {/* Score (Qualitätsbewertung) */}
+                    <tr className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            Score
+                        </td>
+                        {products.map((product) => {
+                            const isBest = analysis?.scores?.besteScoreId === product.id;
+                            return (
+                                <td
+                                    key={`score-${product.id}`}
+                                    className={`px-6 py-4 whitespace-nowrap text-sm ${
+                                        isBest ? 'bg-green-100 font-bold text-green-800' : 'text-gray-900'
+                                    }`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <ScoreBadge value={product.wertungsScore} />
+                                        {isBest && product.wertungsScore != null && (
+                                            <span className="text-xs">Bester</span>
+                                        )}
+                                    </div>
+                                </td>
+                            );
+                        })}
+                    </tr>
+
+
                     {/* Nährwerte */}
                     {nutritionFields.map(field => (
                         <tr key={field.key} className="hover:bg-gray-50">
@@ -247,6 +274,12 @@ const ComparisonTable = ({ products, analysis }) => {
                         {analysis.kategorien && (
                             <div>
                                 <span className="font-medium">🏷 Kategorien:</span> {analysis.kategorien.alleSameKategorie ? 'Alle gleich' : 'Verschiedene'}
+                            </div>
+                        )}
+                        {/* ⬇️ NEU: Durchschnittlicher Score */}
+                        {analysis.scores && (
+                            <div>
+                                <span className="font-medium">Ø Score:</span> {analysis.scores.durchschnitt} Punkte
                             </div>
                         )}
                         <div>
