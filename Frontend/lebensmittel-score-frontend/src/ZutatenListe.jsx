@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -113,38 +112,6 @@ export default function ZutatenListe() {
                 <p className="text-xl text-slate-600 max-w-3xl mx-auto">
                     Hier sehen Sie alle {stats.anzahl.toLocaleString('de-DE')} bewerteten Zutaten und deren Gesundheits-Score
                 </p>
-            </div>
-
-            <div className="mb-8 bg-white rounded-xl border border-slate-200 p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">
-                    Mathematische Formel für die gewichtete Zutatenbewertung (W_Zutaten):
-                </h3>
-
-                <div className="text-center mb-6">
-                    <div className="text-3xl font-serif text-slate-800">
-                        WZ<sub>utaten</sub> =
-                        <span className="mx-4">
-                            <span className="inline-block">
-                                <span className="block border-b-2 border-slate-800 pb-1 text-2xl">
-                                    ∑<sup>n</sup><sub>i=1</sub> (S<sub>i</sub> × G<sub>i</sub>)
-                                </span>
-                                <span className="block text-2xl mt-1">
-                                    ∑<sup>n</sup><sub>i=1</sub> G<sub>i</sub>
-                                </span>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-
-                <div className="space-y-3 text-sm text-slate-700">
-                    <div><strong>Wo:</strong></div>
-                    <div className="pl-4">
-                        <div>• <strong>n:</strong> Gesamtanzahl der Zutaten im Produkt.</div>
-                        <div>• <strong>S<sub>i</sub>:</strong> Der intrinsische Score der i-ten Zutat (zwischen 1 und 100, festgelegt im ZUTATEN_SCORES-Dictionary). Ein höherer Wert bedeutet "besser".</div>
-                        <div>• <strong>P<sub>i</sub>:</strong> Die Position der i-ten Zutat in der Liste (1 für die erste, 2 für die zweite usw.).</div>
-                        <div>• <strong>G<sub>i</sub>:</strong> Der Gewichtungsfaktor für die i-te Zutat, berechnet als G<sub>i</sub> = 1/√P<sub>i</sub>.</div>
-                    </div>
-                </div>
             </div>
 
             <div className="mb-8">
