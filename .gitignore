@@ -31,3 +31,32 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+################################################################################
+# FRONTEND (React + Vite)
+################################################################################
+
+# Node modules (niemals committen!)
+Frontend/lebensmittel-score-frontend/node_modules/
+
+# Build output
+Frontend/lebensmittel-score-frontend/dist/
+Frontend/lebensmittel-score-frontend/dist-ssr/
+Frontend/lebensmittel-score-frontend/.vite/
+
+# Env Files
+Frontend/lebensmittel-score-frontend/*.local
+Frontend/lebensmittel-score-frontend/*.env
+
+################################################################################
+# OS / Temp
+################################################################################
+.DS_Store
+Thumbs.db
+
+################################################################################
+# Sensitive Files (falls du lokale Konfiguration nutzt)
+################################################################################
+application-local.properties
+*.env
