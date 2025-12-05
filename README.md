@@ -116,20 +116,32 @@ FoodScore/
 │   └── lebensmittel-score-frontend/
 │       ├── src/
 │       │   ├── assets/
+│       │   │   └── react.svg
 │       │   ├── Clients/
+│       │   │   ├── ProduktClient.js
+│       │   │   └── VergleichsClient.js
 │       │   ├── components/
+│       │   │   └── ScoreBadge.jsx
 │       │   ├── hooks/
+│       │   │   └── ProduktVergleich.js
 │       │   ├── App.jsx
+│       │   ├── FliegendeEmojis.jsx
+│       │   ├── LebensmittelListe.jsx
 │       │   ├── main.jsx
 │       │   ├── ProduktDetails.jsx
+│       │   ├── Suche.jsx
 │       │   ├── VergleichsSeite.jsx
 │       │   └── ZutatenListe.jsx
 │       │
 │       ├── public/
+│       │   └── vite.svg
 │       ├── package.json
 │       ├── package-lock.json
 │       ├── vite.config.js
 │       ├── tailwind.config.js
+│       ├── eslint.config.js
+│       ├── PriceRangeSlider.jsx
+│       ├── index.html
 │       ├── postcss.config.js
 │       └── README.md
 │
@@ -168,6 +180,7 @@ FoodScore/
 ├── .gitignore
 ├── .gitattributes
 ├── pom.xml
+├── Commands für uns
 ├── mvnw
 ├── mvnw.cmd
 └── README.md
@@ -203,10 +216,9 @@ Für Händler:
 📜 Lizenz
 MIT License – Nutzung für Studium & private Projekte erlaubt.
 
-——————————————————————————————————————————————————————————————————
-Ein Projekt der Universität Duisburg-Essen – Sommersemester 2025
-Team: Emirhan, Cenk, Özgürcan, Demian, Ratheesh
-——————————————————————————————————————————————————————————————————
+———————————————————————————————————————————
+Ein Projekt der Universität Duisburg-Essen
+———————————————————————————————————————————
 
 👥 Team
 
