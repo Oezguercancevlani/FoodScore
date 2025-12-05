@@ -185,7 +185,7 @@ FoodScore/
 ├── mvnw.cmd
 └── README.md
 
-Bitte unbedingt vorher die Installation_Guide.pdf durchlesen!!!
+Wichtig: Die Installation_Guide.pdf enthält alle Setup-Schritte — bitte zuerst lesen.
 
 Backend starten:
 
