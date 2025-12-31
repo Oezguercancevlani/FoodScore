@@ -159,7 +159,7 @@ Scraping / Data Engineering:
 - Frontend & Backend vollständig getrennt deploybar
 - Datenbereinigung mit ETL-Ansatz
 
-📂 Projektstruktur
+📂 Projektstruktur ℹ️ Hinweis: Die vollständige Projektstruktur ist im **Code-Tab** der README ersichtlich.
 
 FoodScore/
 │
