@@ -189,6 +189,15 @@ FoodScore/
 │
 ├── docs/
 │   └── Installation_Guide.pdf
+│   └── images/
+│           ├── FoodScore1.png
+│           ├── FoodScore2.png
+│           ├── FoodScore3.png
+│           ├── FoodScore4.png
+│           ├── FoodScore5.png
+│           ├── FoodScore6.png
+│           ├── FoodScore7.png
+│           └── FoodScore8.png
 │
 ├── src/
 │   └── main/
@@ -228,6 +237,7 @@ FoodScore/
 └── README.md
 
 Wichtig: Die Installation_Guide.pdf enthält alle Setup-Schritte — bitte zuerst lesen.
+⚠️ Hinweis: Vor dem Start der Anwendung muss der Platzhalter `CHANGE_ME` in der Datei `application.properties` durch das eigene PostgreSQL-Passwort ersetzt werden.
 
 Backend starten:
 
