@@ -1,3 +1,45 @@
+## 📸 Screenshots & Features
+
+### 🏠 Startseite
+<p align="center">
+  <img src="docs/images/FoodScore1.png" width="900" alt="FoodScore Startseite mit Suchfeld">
+</p>
+
+### 📦 Alle Produkte
+<p align="center">
+  <img src="docs/images/FoodScore2.png" width="900" alt="Alle Produkte Übersicht mit Filtern">
+</p>
+
+### 🧰 Erweiterte Filteransicht
+<p align="center">
+  <img src="docs/images/FoodScore3.png" width="900" alt="Alle Produkte mit ausgeklappter Filtersektion">
+</p>
+
+### 📚 Zutaten-Dictionary
+<p align="center">
+  <img src="docs/images/FoodScore4.png" width="900" alt="Zutaten Dictionary mit Score-Bedeutung">
+</p>
+
+### ⚠️ Kritische Zutaten
+<p align="center">
+  <img src="docs/images/FoodScore5.png" width="900" alt="Kritische Zutaten mit niedrigen Scores">
+</p>
+
+### 🔎 Produktdetails & FoodScore
+<p align="center">
+  <img src="docs/images/FoodScore6.png" width="900" alt="Produktdetailseite mit FoodScore 100">
+</p>
+
+### 📊 Produktvergleich – Detailtabelle
+<p align="center">
+  <img src="docs/images/FoodScore7.png" width="900" alt="Produktvergleich vollständige Tabelle">
+</p>
+
+### 🆚 Produktvergleich – Übersicht
+<p align="center">
+  <img src="docs/images/FoodScore8.png" width="900" alt="Produktvergleich Übersicht mit mehreren Produkten">
+</p>
+
 🚀 FoodScore – Fullstack Lebensmittelbewertungssystem
 🧠 Projektidee
 
