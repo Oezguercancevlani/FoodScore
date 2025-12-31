@@ -1,3 +1,11 @@
+# 🚀 FoodScore
+**Transparente Lebensmittelbewertung jenseits des Nutri-Scores**  
+Fullstack Web-App (React · Spring Boot · PostgreSQL · Python)
+![Java](https://img.shields.io/badge/Java-21-blue)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen)
+![React](https://img.shields.io/badge/React-Vite-blue)
+
+
 ## 📸 Screenshots & Features
 
 ### 🏠 Startseite
