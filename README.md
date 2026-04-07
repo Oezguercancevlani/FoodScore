@@ -274,7 +274,10 @@ Für Händler:
 ✔ Preis-Leistungs-Strategien
 ✔ Trends zu “gesunden Produkten” nutzen
 
+---
+
 📜 Lizenz
+
 MIT License – Nutzung für Studium & private Projekte erlaubt.
 
 ---
