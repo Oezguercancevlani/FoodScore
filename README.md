@@ -159,95 +159,15 @@ Scraping / Data Engineering:
 - Frontend & Backend vollständig getrennt deploybar
 - Datenbereinigung mit ETL-Ansatz
 
+---
+
 📂 Projektstruktur
 
 <p>
   <img src="docs/images/project-structure.png" width="300" alt="Projektstruktur von FoodScore">
 </p>
 
-FoodScore/
-│
-├── Frontend/
-│   └── lebensmittel-score-frontend/
-│       ├── src/
-│       │   ├── assets/
-│       │   │   └── react.svg
-│       │   ├── Clients/
-│       │   │   ├── ProduktClient.js
-│       │   │   └── VergleichsClient.js
-│       │   ├── components/
-│       │   │   └── ScoreBadge.jsx
-│       │   ├── hooks/
-│       │   │   └── ProduktVergleich.js
-│       │   ├── App.jsx
-│       │   ├── FliegendeEmojis.jsx
-│       │   ├── LebensmittelListe.jsx
-│       │   ├── main.jsx
-│       │   ├── ProduktDetails.jsx
-│       │   ├── Suche.jsx
-│       │   ├── VergleichsSeite.jsx
-│       │   └── ZutatenListe.jsx
-│       │
-│       ├── public/
-│       │   └── vite.svg
-│       ├── package.json
-│       ├── package-lock.json
-│       ├── vite.config.js
-│       ├── tailwind.config.js
-│       ├── eslint.config.js
-│       ├── PriceRangeSlider.jsx
-│       ├── index.html
-│       ├── postcss.config.js
-│       └── README.md
-│
-├── docs/
-│   └── Installation_Guide.pdf
-│   └── images/
-│           ├── FoodScore1.png
-│           ├── FoodScore2.png
-│           ├── FoodScore3.png
-│           ├── FoodScore4.png
-│           ├── FoodScore5.png
-│           ├── FoodScore6.png
-│           ├── FoodScore7.png
-│           └── FoodScore8.png
-│
-├── src/
-│   └── main/
-│       ├── java/com/example/FoodScore/
-│       │   ├── Controller/
-│       │   │   ├── ProduktController.java
-│       │   │   ├── ProduktScoreController.java
-│       │   │   └── VergleichController.java
-│       │   │
-│       │   ├── Persistenz/
-│       │   │   ├── Daten/
-│       │   │   │   ├── edeka24Daten.csv
-│       │   │   │   ├── Lebensmitteldaten.csv
-│       │   │   │   └── myTimeDaten.csv
-│       │   │   ├── Produkt.java
-│       │   │   ├── ProduktRepository.java
-│       │   │   └── ZutatenScore.java
-│       │   │
-│       │   ├── Service/
-│       │   │   ├── ProduktService.java
-│       │   │   ├── ProduktScoreService.java
-│       │   │   ├── ZutatenDictionary.java
-│       │   │   └── ZutatenFileLoader.java
-│       │   │
-│       │   └── FoodScoreApplication.java
-│       │
-│       └── resources/
-│           ├── application.properties
-│           └── Zutatenliste mit Scores.py
-│
-├── .gitignore
-├── .gitattributes
-├── pom.xml
-├── Commands für uns
-├── mvnw
-├── mvnw.cmd
-└── README.md
+---
 
 Wichtig: Die Installation_Guide.pdf enthält alle Setup-Schritte — bitte zuerst lesen.
 ⚠️ Hinweis: Vor dem Start der Anwendung muss der Platzhalter `CHANGE_ME` in der Datei `application.properties` durch das eigene PostgreSQL-Passwort ersetzt werden.
