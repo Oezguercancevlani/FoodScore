@@ -162,7 +162,7 @@ Scraping / Data Engineering:
 📂 Projektstruktur
 
 <p align="center">
-  <img src="docs/images/project-structure.png" width="900" alt="Projektstruktur von FoodScore">
+  <img src="docs/images/project-structure.png" width="300" alt="Projektstruktur von FoodScore">
 </p>
 
 FoodScore/
