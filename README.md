@@ -6,6 +6,7 @@ Fullstack Web-App (React · Spring Boot · PostgreSQL · Python)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen)
 ![React](https://img.shields.io/badge/React-Vite-blue)
 
+---
 
 ## 📸 Screenshots & Features
 
@@ -14,45 +15,63 @@ Fullstack Web-App (React · Spring Boot · PostgreSQL · Python)
   <img src="docs/images/FoodScore1.png" width="900" alt="FoodScore Startseite mit Suchfeld">
 </p>
 
+---
+
 ### 📦 Alle Produkte
 <p align="center">
   <img src="docs/images/FoodScore2.png" width="900" alt="Alle Produkte Übersicht mit Filtern">
 </p>
+
+---
 
 ### 🧰 Erweiterte Filteransicht
 <p align="center">
   <img src="docs/images/FoodScore3.png" width="900" alt="Alle Produkte mit ausgeklappter Filtersektion">
 </p>
 
+---
+
 ### 📚 Zutaten-Dictionary
 <p align="center">
   <img src="docs/images/FoodScore4.png" width="900" alt="Zutaten Dictionary mit Score-Bedeutung">
 </p>
+
+---
 
 ### ⚠️ Kritische Zutaten
 <p align="center">
   <img src="docs/images/FoodScore5.png" width="900" alt="Kritische Zutaten mit niedrigen Scores">
 </p>
 
+---
+
 ### 🔎 Produktdetails & FoodScore
 <p align="center">
   <img src="docs/images/FoodScore6.png" width="900" alt="Produktdetailseite mit FoodScore 100">
 </p>
+
+---
 
 ### 📊 Produktvergleich – Detailtabelle
 <p align="center">
   <img src="docs/images/FoodScore7.png" width="900" alt="Produktvergleich vollständige Tabelle">
 </p>
 
+---
+
 ### 🆚 Produktvergleich – Übersicht
 <p align="center">
   <img src="docs/images/FoodScore8.png" width="900" alt="Produktvergleich Übersicht mit mehreren Produkten">
 </p>
 
+---
+
 🚀 FoodScore – Fullstack Lebensmittelbewertungssystem
 🧠 Projektidee
 
 FoodScore ist eine Fullstack-Webanwendung zur automatisierten Bewertung von Lebensmitteln anhand ihrer Zutatenliste, Nährwerte und Verarbeitungsindikatoren.
+
+---
 
 💡 Ziel:
 Verbrauchern & Händlern eine transparente, leicht verständliche Bewertung der Gesundheit eines Produkts zu liefern – als Alternative zum oft kritisierten Nutri-Score.
@@ -65,7 +84,10 @@ Das System umfasst:
 - mathematische Bewertungsformel
 - Fullstack Web-App (React + Spring Boot)
 
+---
+
 ⭐ Kernfeatures
+
 🔎 Produktsuche & Autocomplete
 
 Finde Produkte in Echtzeit mittels Prefix-Suche & Ergebnisvorschlägen.
@@ -119,6 +141,8 @@ Zur Score-Zuweisung der 1000+ Zutaten wurde GPT-5 Thinking Mode genutzt:
 - weniger Bias als manuelle Bewertungen
 - konsistente Normalisierung von Zutatenvarianten
 - reproduzierbare Bewertungspipeline
+
+---
 
 🧱 Technologie-Stack
 
@@ -183,6 +207,8 @@ Frontend starten:
 - cd Frontend/lebensmittel-score-frontend
 - npm install
 - npm run dev
+
+---
 
 🎯 Ziele & Mehrwert
 
